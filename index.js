@@ -38,7 +38,7 @@ app.post("/try-uploads", upload.single("img"), (req, res) => {
   res.json(req.file);
 });
 
-app.use("/product", require(__dirname + "/src/productList/productList"));
+app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 
 
