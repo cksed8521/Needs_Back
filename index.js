@@ -19,8 +19,16 @@ const app = express()
 const server = http.createServer(app)
 const io = socketio(server)
 
+const corsOptions = {
+  credentials : true,
+  origin: function (origin, cb){
+      console.log('origin:', origin)
+      cb(null,true)
+  }
+}
+
 app.use(router)
-app.use(cors())
+app.use(cors(corsOptions))
 
 app.get("/try-db", (req, res) => {
   db.query("SELECT * FROM`products` WHERE 1").then(([result]) => {
@@ -28,6 +36,7 @@ app.get("/try-db", (req, res) => {
   });
 });
 
+app.use('/products', require('./src/Product/routes'));
 
 server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
 
