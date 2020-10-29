@@ -36,11 +36,13 @@ app.use(cors(corsOptions))
 app.get("/try-db", (req, res) => {
   db.query("SELECT * FROM`products` WHERE 1").then(([result]) => {
     res.json(result);
-  });
-});
+  })
+})
 
 //引用自己的route資料夾
-app.use('/login', require( __dirname + '/src/login/login'));
+app.use('/login-api', require( __dirname + '/src/login/login_api'));
+app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
+
 
 
 
