@@ -5,11 +5,8 @@ const multer  = require('multer')
 const upload = multer()
 
 
-router.post('/try-post', ((req, res) => {
-    res.json(req.body)
-}))
-
-router.post('/memberlogin', upload.none(),  async (req, res) => {
+//商家登入
+router.post('/merchantlogin', upload.none(),  async (req, res) => {
     const submitData = req.body
     const output = {
         user: {submitData, username: ''},
@@ -24,6 +21,26 @@ router.post('/memberlogin', upload.none(),  async (req, res) => {
     console.log(output)
     res.json(output)
 })
+
+
+//會員登入
+router.post('/memberlogin', upload.none(),  async (req, res) => {
+    const submitData = req.body
+    const output = {
+        user: {submitData, username: ''},
+        success: false
+    }
+    const sql = "SELECT id, email, name as member_name FROM customers WHERE email = ? AND password = SHA1(?)"
+    const [results] = await db.query(sql, [req.body.username, req.body.password])
+    if (results.length){
+        output.user.username = results[0].member_name
+        output.success = true
+    }
+    console.log(output)
+    res.json(output)
+})
+
+//後台登入
 
 
 module.exports = router
