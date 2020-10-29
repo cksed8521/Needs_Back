@@ -31,18 +31,13 @@ app.get("/try-db", (req, res) => {
   });
 });
 
-app.post("/try-uploads", upload.single("img"), (req, res) => {
-  console.log(1);
-  console.log(req.file);
-  console.log(2);
-  res.json(req.file);
-});
+
 
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 
 
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/public/articleImg"));
 
 server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
 

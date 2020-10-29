@@ -28,13 +28,23 @@ router.get("/" , async(req, res) => {
         res.json(results)
       })
       break
-      
+
       default:
          // sort by id
         db.query('SELECT * FROM `products` ORDER BY `products`.`id` ASC').then(([results])=>{
           res.json(results)
         })
 }
+})
+
+router.get('/:id' , async (req,res) =>{
+    const sql = "SELECT * FROM `products` WHERE id=?"
+
+    const [results] = await db.query(sql, [req.params.id])
+    if(! results.length) return res.send('No found data')
+
+    res.json(results)
+  
 })
 
 
