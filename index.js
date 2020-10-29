@@ -40,6 +40,7 @@ app.post("/try-uploads", upload.single("img"), (req, res) => {
 
 app.use("/product", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
+// app.use("/member", require(__dirname + "/src/member/memberdata"));
 
 
 app.use(express.static(__dirname + "/public"));
