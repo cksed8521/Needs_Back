@@ -6,10 +6,13 @@ const db = require(__dirname+'/src/db_connect')
 const http = require('http')
 const PORT = process.env.PORT || 5000
 
-//install自己需要的modules
+//如自己葉面需要用可以從這裡copy到自己的檔案裡
 const fs = require('fs')
 const {v4: uuidv4} = require('uuid')
 const socketio = require('socket.io')
+const multer = require("multer");
+const upload = multer({ dest: __dirname + "/tmp_uploads" })
+const axios = require('axios')
 
 
 const cors = require('cors')
@@ -20,7 +23,7 @@ const corsOptions = {
       cb(null,true)
   }
 }
-const axios = require('axios')
+
 const server = http.createServer(app)
 const io = socketio(server)
 const router = require('./router')
@@ -39,6 +42,8 @@ app.get("/try-db", (req, res) => {
   })
 })
 
+
+
 //引用自己的route資料夾
 app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
@@ -48,12 +53,24 @@ app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
 
 
 
+app.post("/try-uploads", upload.single("img"), (req, res) => {
+  console.log(1);
+  console.log(req.file);
+  console.log(2);
+  res.json(req.file);
+});
+
+app.use("/product", require(__dirname + "/src/productList/productList"));
+app.use("/article", require(__dirname + "/src/article/article"));
 
 
-
-
+app.use(express.static(__dirname + "/public"));
 
 // server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
+
+
+
+
 
 app.listen(process.env.PORT || 5000, ()=>{
   console.log(`Server has started on port ${PORT}`);
