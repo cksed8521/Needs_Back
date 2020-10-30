@@ -5,13 +5,11 @@ const db = require(__dirname + "/../db_connect");
 const router = express.Router();
 
 //get products
-router.get("/" , async(req, res) => {
-  db.query('SELECT * FROM products').then(([results]) =>{
+router.get("/", async (req, res) => {
+  db.query("SELECT * FROM products").then(([results]) => {
     res.json(result);
-  } )
-
-})
-
+  });
+});
 
 //處理page
 async function getListData(req) {
@@ -91,7 +89,5 @@ router.get("/api", async (req, res) => {
 
   res.json(r1);
 });
-
-
 
 module.exports = router;
