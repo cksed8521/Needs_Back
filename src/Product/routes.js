@@ -30,7 +30,7 @@ async function getMerchantData(id, exclude) {
   const [[detail]] = await db.query(merchant_sql, [id]);
 
   const products_sql =
-    "SELECT id,title,image_300 FROM products WHERE merchant_id=? and id!=? LIMIT 6";
+    "SELECT id,title,image_path FROM products WHERE merchant_id=? and id!=? LIMIT 6";
   const [products] = await db.query(products_sql, [id, exclude]);
   detail.products = products;
 
@@ -45,6 +45,12 @@ async function getMerchantData(id, exclude) {
     sku = skus.find((s) => s.product_id == product.id);
     return (product.price = sku.price), (product.sale_price = sku.sale_price);
   });
+  detail.created_time = 2
+  detail.review = 4.8
+  detail.review_amount = 3600
+  detail.fans = 21
+  detail.product_amount = 23
+
   return detail;
 }
 
