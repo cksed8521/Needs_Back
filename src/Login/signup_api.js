@@ -10,6 +10,7 @@ router.post('/merchantsignup', upload.none(),  async (req, res) => {
     const submitData = {...req.body}
     const sqlGetEmail = "SELECT * FROM merchant_contacts WHERE email = ?"
     const [emailDuplicated] = await db.query(sqlGetEmail, req.body.email)
+
     //先確認是否有重複的email
     if (emailDuplicated.length){
         res.json({
@@ -19,8 +20,10 @@ router.post('/merchantsignup', upload.none(),  async (req, res) => {
         })
     }
     else{
+
         //取得商家最後一筆資料的merchant_id
         const sqlGetLastId = "SELECT last_merchant FROM last_id"
+
         const [last_merchant_id] = await db.query(sqlGetLastId)
         //設新的merchant_id
         let new_merchant_id = parseInt(last_merchant_id[0].last_merchant.replace('M','')) + 1
@@ -33,12 +36,13 @@ router.post('/merchantsignup', upload.none(),  async (req, res) => {
 
          //如果新增失敗
         if (!insertMerchantResult.insertId){
-            res.json({
+            return res.json({
                 error: 'Insert new merchant Failed',
                 success: false
         })
+        
         } 
-
+        
         //把新增商家成功的insert.id取出來
         const merchantInsertId = insertMerchantResult.insertId
 
@@ -55,10 +59,11 @@ router.post('/merchantsignup', upload.none(),  async (req, res) => {
 
         //如果新增聯絡人失敗
          if (!insertContactResult.insertId){
-            res.json({
+            return res.json({
                 error: 'Insert new merchant contact Failed', 
                 success: false
             })
+            
          }
 
         //新增商家成功跟聯絡人都成功 就更新last_id資料表
@@ -69,11 +74,11 @@ router.post('/merchantsignup', upload.none(),  async (req, res) => {
         if (!updateIdResult.affectedRows){
             const sqlDeleteMerchatData = "DELETE A.*, B.* FROM merchants as A LEFT JOIN merchant_contacts as B ON B.merchant_id = A.id WHERE A.id = ?"
             const [result] = await db.query(sqlDeleteMerchatData, [insertMerchantResult.insertId])
-            res.json({
+            return res.json({
                 error: 'Update last id Failed', 
                 success: false
         })
-            return
+            
         }
         //全部都成功回傳以下資料給前端
         res.json({

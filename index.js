@@ -42,17 +42,7 @@ app.get("/try-db", (req, res) => {
   })
 })
 
-
-
-//引用自己的route資料夾
-app.use('/login-api', require( __dirname + '/src/login/login_api'));
-app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
-
-
-
-
-
-
+//測試圖片上傳
 app.post("/try-uploads", upload.single("img"), (req, res) => {
   console.log(1);
   console.log(req.file);
@@ -60,18 +50,16 @@ app.post("/try-uploads", upload.single("img"), (req, res) => {
   res.json(req.file);
 });
 
+
+//引用自己的route資料夾
+app.use(express.static(__dirname + "/public"));
+app.use('/login-api', require( __dirname + '/src/login/login_api'));
+app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
 app.use("/product", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 
 
-app.use(express.static(__dirname + "/public"));
-
-// server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
 
 
 
-
-
-app.listen(process.env.PORT || 5000, ()=>{
-  console.log(`Server has started on port ${PORT}`);
-})
+server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
