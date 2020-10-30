@@ -23,7 +23,7 @@ app.use(router)
 app.use(cors())
 
 app.get("/try-db", (req, res) => {
-  db.query("SELECT * FROM`products` WHERE 1").then(([result]) => {
+  db.query("SELECT * FROM `products` WHERE 1").then(([result]) => {
     res.json(result);
   });
 });
