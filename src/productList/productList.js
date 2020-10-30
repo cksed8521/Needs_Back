@@ -7,7 +7,7 @@ const router = express.Router();
 //get products
 router.get("/", async (req, res) => {
   db.query("SELECT * FROM products").then(([results]) => {
-    res.json(result);
+    res.json(results);
   });
 });
 

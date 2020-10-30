@@ -10,9 +10,6 @@ const PORT = process.env.PORT || 5000
 const fs = require('fs')
 const {v4: uuidv4} = require('uuid')
 const socketio = require('socket.io')
-const multer = require("multer");
-const upload = multer({ dest: __dirname + "/tmp_uploads" })
-const axios = require('axios')
 
 
 const cors = require('cors')
@@ -29,10 +26,10 @@ const io = socketio(server)
 const router = require('./router')
 
 
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({extended: false}))
 app.use(express.json())
 app.use(router)
-app.use(cors(corsOptions))
+app.use(cors())
 
 
 //測試資料庫連線
@@ -49,71 +46,19 @@ app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
 
 
-
-
-
-
-app.post("/try-uploads", upload.single("img"), (req, res) => {
-  console.log(1);
-  console.log(req.file);
-  console.log(2);
-  res.json(req.file);
-});
-
 app.use("/product", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
-app.get("/member", require(__dirname + "/src/member/memberdata"));
-/*app.get('/',req,res)=> {
-  res.send('<h2>Hollow</h2>');
-}*/
-//上傳大頭貼圖檔並判斷是復為圖檔
-app.post('/upload-avatar', upload.single('avatar'), (req, res)=>{
-  console.log(req.file);
+app.use("/member", require(__dirname + "/src/member/memberdata"));
 
-  if(req.file && req.file.originalname){
-      let ext = '';
-
-      switch(req.file.mimetype){
-          case 'image/png':
-          case 'image/jpeg':
-          case 'image/gif':
-//確定為圖檔後搬移圖檔至路徑位置
-              fs.rename(
-                  req.file.path,
-                  __dirname + '/src/member/img' + req.file.originalname,
-                  error=>{
-                      return res.json({
-                          success: true,
-                          path: '/img/'+ req.file.originalname
-                      });
-                  });
-
-              break;
-          default:
-              fs.unlink(req.file.path, error=>{
-                  return res.json({
-                      success: false,
-                      msg: '不是圖檔'
-                  });
-              });
-
-      }
-  } else {
-      return res.json({
-          success: false,
-          msg: '沒有上傳檔案'
-      });
-  }
-});
 
 app.use(express.static(__dirname + "/public"));
 
-// server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
+server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
 
 
 
 
 
-app.listen(process.env.PORT || 5000, ()=>{
-  console.log(`Server has started on port ${PORT}`);
-})
+// server.listen(process.env.PORT || 5000, ()=>{
+//   console.log(`Server has started on port ${PORT}`);
+// })

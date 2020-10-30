@@ -5,9 +5,15 @@ const db = require(__dirname + "/../db_connect");
 const router = express.Router();
 
 
-router.get('/', (req, res)=>{
-    res.send('address-book');
-});
+router.get("/:id?", async (req, res) => {
+    const sql = "SELECT * FROM `customers` WHERE id=?"
+
+    const [results] = await db.query(sql, [req.params.id])
+
+    if(! results.length) return res.send('NO fund data')
+
+    res.json(results)
+  });
 
 /* RESTful API
     列表
@@ -25,22 +31,6 @@ router.get('/', (req, res)=>{
     刪除單筆
     /api/:sid DELETE
 */
-
-router.get('/api', async (req, res)=>{
-    const output = {
-        page: 1,
-        perPage: 5,
-        totalRows: 0,
-        totalPage: 0,
-        rows: []
-    };
-
-    const [ [ { totalRows } ] ] = await db.query("SELECT COUNT(1) totalRows FROM address_book");
-
-    res.json(totalRows);
-
-});
-
 
 
 
