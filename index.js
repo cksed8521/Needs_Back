@@ -43,28 +43,18 @@ app.get("/try-db", (req, res) => {
 })
 
 
-
 //引用自己的route資料夾
 app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
-
-
-
-
-
-
 
 
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 
 
-app.use(express.static(__dirname + "/public/articleImg"));
+app.use(express.static(__dirname + "/public/"));
 
 // server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
-
-
-
 
 
 app.listen(process.env.PORT || 5000, ()=>{

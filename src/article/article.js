@@ -3,12 +3,12 @@ const express = require("express");
 const db = require(__dirname + "/../db_connect");
 const moment = require('moment-timezone');
 const router = express.Router();
-const upload = require(__dirname + '/../upload-img-module');
+const upload = require(__dirname + '/articleUploadModule');
 
 
 //success to upload into EditorJS
 router.post('/fetchUrl', upload.single("image") ,(req,res) => {
-  const imgPath = "http://localhost:5000/" + req.file.filename
+  const imgPath = "http://localhost:5000/articleImg/" + req.file.filename
     res.json({
       "success" : 1,
       "file": {
@@ -44,10 +44,11 @@ router.get("/", (req, res) => {
 });
 
 router.post('/',upload.single("image"),async(req, res) => {
-  console.log('title',req.body[0])
-  console.log('imgPath',req.body[1])
-  console.log('Outline',req.body[2])
-  console.log('Detial',req.body[3])
+  if(!req.body[0] || !req.body[1] || !req.body[2] || !req.body[3]) return
+    console.log(req.body[0])
+    console.log(req.body[1])
+    console.log(req.body[2])
+    console.log(req.body[3])
   const setTitle = req.body[0]
   const imgPath = req.body[1]
   const setOutline = req.body[2]
