@@ -7,7 +7,7 @@ const upload = require(__dirname + '/../upload-img-module');
 
 
 //success to upload into EditorJS
-router.post('/fetchUrl', upload.single("image") ,async(req,res) => {
+router.post('/fetchUrl', upload.single("image") ,(req,res) => {
   const imgPath = "http://localhost:5000/" + req.file.filename
     res.json({
       "success" : 1,
@@ -44,11 +44,14 @@ router.get("/", (req, res) => {
 });
 
 router.post('/',upload.single("image"),async(req, res) => {
-  console.log(req.body)
-  const setTitle = req.body.title
-  const imgPath = "http://localhost:5000/" + req.file.filename || ""
-  const setOutline = req.body.outline
-  const setDetial = req.body.detial
+  console.log('title',req.body[0])
+  console.log('imgPath',req.body[1])
+  console.log('Outline',req.body[2])
+  console.log('Detial',req.body[3])
+  const setTitle = req.body[0]
+  const imgPath = req.body[1]
+  const setOutline = req.body[2]
+  const setDetial = req.body[3]
 
   // if ( !req.body[0]) return
     // const data = {
