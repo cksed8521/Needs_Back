@@ -62,4 +62,8 @@ app.use("/article", require(__dirname + "/src/article/article"));
 
 
 
-server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
+// server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
+
+app.listen(process.env.PORT || 5000, ()=>{
+  console.log(`Server has started on port ${PORT}`);
+})
