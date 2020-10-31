@@ -56,12 +56,10 @@ app.post("/try-uploads", upload.single("img"), (req, res) => {
 app.use(express.static(__dirname + "/public"));
 app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
-app.use("/product", require(__dirname + "/src/productList/productList"));
-app.use("/article", require(__dirname + "/src/article/article"));
-app.use('/signup-api', require(__dirname + '/src/login/signup_api'));
 app.use('/bk-products-api', require(__dirname + '/src/backend-ms/products'));
-
-
+app.use('/products', require('./src/Product/routes'));
+app.use("/productlist", require(__dirname + "/src/productList/productList"));
+app.use("/article", require(__dirname + "/src/article/article"));
 
 
 
