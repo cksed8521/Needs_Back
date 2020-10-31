@@ -10,9 +10,10 @@ const PORT = process.env.PORT || 5000
 const fs = require('fs')
 const {v4: uuidv4} = require('uuid')
 const socketio = require('socket.io')
-const multer = require("multer");
+const multer = require("multer")
 const upload = multer({ dest: __dirname + "/tmp_uploads" })
 const axios = require('axios')
+const moment = require('moment-timezone')
 
 
 const cors = require('cors')
@@ -42,17 +43,7 @@ app.get("/try-db", (req, res) => {
   })
 })
 
-
-
-//引用自己的route資料夾
-app.use('/login-api', require( __dirname + '/src/login/login_api'));
-app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
-
-
-
-
-
-
+//測試圖片上傳
 app.post("/try-uploads", upload.single("img"), (req, res) => {
   console.log(1);
   console.log(req.file);
@@ -60,17 +51,19 @@ app.post("/try-uploads", upload.single("img"), (req, res) => {
   res.json(req.file);
 });
 
-app.use("/product", require(__dirname + "/src/productList/productList"));
+
+//引用自己的route資料夾
+app.use(express.static(__dirname + "/public"));
+app.use('/login-api', require( __dirname + '/src/login/login_api'));
+app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
+app.use('/bk-products-api', require(__dirname + '/src/backend-ms/products'));
+app.use('/products', require('./src/Product/routes'));
+app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 
 
-app.use(express.static(__dirname + "/public"));
 
 // server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
-
-
-
-
 
 app.listen(process.env.PORT || 5000, ()=>{
   console.log(`Server has started on port ${PORT}`);
