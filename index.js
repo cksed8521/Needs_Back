@@ -62,14 +62,11 @@ app.post("/try-uploads", upload.single("img"), (req, res) => {
 
 app.use("/product", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
-
+app.use('/dashboard', require(__dirname + '/src/Backend/Dashboard/route'));
 
 app.use(express.static(__dirname + "/public"));
 
 // server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
-
-
-
 
 
 app.listen(process.env.PORT || 5000, ()=>{
