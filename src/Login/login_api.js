@@ -9,7 +9,8 @@ const upload = multer()
 router.post('/merchantlogin', upload.none(),  async (req, res) => {
     const submitData = req.body
     const output = {
-        user: {submitData, id:0 ,username: ''},
+        user: {id:0 ,username: '', role:'merchant'},
+        account :submitData,
         success: false
     }
     const sql = "SELECT id, email, name as merchant_name FROM merchant_contacts WHERE email = ? AND password = SHA1(?)"
@@ -29,7 +30,8 @@ router.post('/merchantlogin', upload.none(),  async (req, res) => {
 router.post('/memberlogin', upload.none(),  async (req, res) => {
     const submitData = req.body
     const output = {
-        user: {submitData, id:0 ,username: ''},
+        user: {id:0 ,username: '', role:'member'},
+        account :submitData,
         success: false
     }
     const sql = "SELECT id, email, name as member_name FROM customers WHERE email = ? AND password = SHA1(?)"
