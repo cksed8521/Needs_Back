@@ -65,5 +65,32 @@ router.get("/incomelastweek", (req, res) => {
   });
 });
 
+router.get("/deliverytablefordashboard", (req, res) => {
+  db.query("SELECT *, order_deliveries.status AS delivery_status, orders.status AS status FROM orders JOIN order_deliveries ON orders.delivery_id = order_deliveries.id WHERE merchant_id = 3 ORDER BY orders.created_at DESC LIMIT 7").then(([result]) => {
+    res.json(result);
+  });
+});
+
+router.get("/deliverystatusamount", (req, res) => {
+  db.query("SELECT order_deliveries.status AS delivery_status FROM orders JOIN order_deliveries ON orders.delivery_id = order_deliveries.id WHERE merchant_id = 3 ORDER BY orders.created_at DESC").then(([result]) => {
+    res.json(result);
+  });
+});
+
+router.get("/amountoforders", (req, res) => {
+  db.query("SELECT * FROM orders WHERE merchant_id = 3 ORDER BY orders.created_at DESC").then(([result]) => {
+    res.json(result);
+  });
+});
+
+router.get("/merchantsellrank", (req, res) => {
+  db.query("SELECT * FROM `products` INNER JOIN product_skus ON products.id = product_skus.product_id INNER JOIN order_products ON product_skus.id = order_products.product_sku_id WHERE merchant_id = 3 ORDER BY product_sku_id DESC").then(([result]) => {
+    res.json(result);
+  });
+});
+
+
+
+
 
 module.exports = router;
