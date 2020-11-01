@@ -16,11 +16,11 @@ async function getProductData(id) {
   const [skus] = await db.query(skus_sql, [id]);
   detail.skus = skus;
 
-  const images_sql = "SELECT image FROM product_images WHERE product_id = ?";
-  const [images] = await db.query(images_sql, [id]);
-  const reformattedArray = images.map((item) => Object.values(item)[0]);
+  // const images_sql = "SELECT image FROM product_images WHERE product_id = ?";
+  // const [images] = await db.query(images_sql, [id]);
+  // const reformattedArray = images.map((item) => Object.values(item)[0]);
 
-  detail.images = reformattedArray;
+  // detail.images = reformattedArray;
   return detail;
 }
 

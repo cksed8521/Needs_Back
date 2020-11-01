@@ -1,6 +1,4 @@
 const express = require("express");
-const multer = require("multer");
-const upload = multer({ dest: __dirname + "/../tmp_uploads" });
 
 const socketio = require("socket.io");
 const http = require("http");
