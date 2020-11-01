@@ -84,7 +84,7 @@ router.get("/amountoforders", (req, res) => {
 });
 
 router.get("/merchantsellrank", (req, res) => {
-  db.query("SELECT * FROM `products` INNER JOIN product_skus ON products.id = product_skus.product_id INNER JOIN order_products ON product_skus.id = order_products.product_sku_id WHERE merchant_id = 3 ORDER BY product_sku_id DESC").then(([result]) => {
+  db.query("SELECT * FROM `products` INNER JOIN product_skus ON products.id = product_skus.product_id INNER JOIN order_products ON product_skus.id = order_products.product_sku_id WHERE merchant_id = 3 ORDER BY product_sku_id ASC").then(([result]) => {
     res.json(result);
   });
 });
