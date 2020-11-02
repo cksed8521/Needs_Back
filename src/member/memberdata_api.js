@@ -4,14 +4,12 @@ const db = require(__dirname + "/../db_connect");
 
 const router = express.Router();
 
-
-router.get("/:id?", async (req, res) => {
+//
+router.get("/", async (req, res) => {
     const sql = "SELECT * FROM `customers` WHERE id=?"
-
-    const [results] = await db.query(sql, [req.params.id])
-
+    const [results] = await db.query(sql, [req.query.id])
+//console.log req-->(req.query.id)query為後端api給資料/params為前端網址列提供id訊息/   為form表單提供資料
     if(! results.length) return res.send('NO fund data')
-
     res.json(results)
   });
 
