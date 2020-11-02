@@ -43,17 +43,7 @@ app.get("/try-db", (req, res) => {
   })
 })
 
-<<<<<<< Updated upstream
 //測試圖片上傳
-=======
-
-
-//引用自己的route資料夾
-app.use('/login-api', require( __dirname + '/src/login/login_api'));
-app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
-
-
->>>>>>> Stashed changes
 app.post("/try-uploads", upload.single("img"), (req, res) => {
   console.log(1);
   console.log(req.file);
@@ -61,13 +51,6 @@ app.post("/try-uploads", upload.single("img"), (req, res) => {
   res.json(req.file);
 });
 
-<<<<<<< Updated upstream
-=======
-app.use("/product", require(__dirname + "/src/productList/productList"));
-app.use("/article", require(__dirname + "/src/article/article"));
-
-app.use('/TemplateList-api', require( __dirname + '/src/TemplateList/TemplateList'));
->>>>>>> Stashed changes
 
 //引用自己的route資料夾
 app.use(express.static(__dirname + "/public"));
@@ -77,6 +60,7 @@ app.use('/bk-products-api', require(__dirname + '/src/backend-ms/products'));
 app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
+app.use('/TemplateList', require( __dirname + '/src/TemplateList/TemplateList'));
 
 
 

@@ -4,7 +4,7 @@ const db = require(__dirname + "/../db_connect");
 const fs = require("fs");
 const multer = require('multer')
 const upload = multer({dest:__dirname+'/image'})
-const moment = require('moment-timezone');
+// const moment = require('moment-timezone');
 const router = express.Router();
 
 router.use(express.urlencoded({ extended: false }));
@@ -70,3 +70,5 @@ router.post('/',upload.none(),async(req, res) => {
 //   const article = article.find((c) => c.id === parseInt(req.params.id));
 //   if (!article) res.status(404).send("The article is not found");
 // });
+
+module.exports = router;
