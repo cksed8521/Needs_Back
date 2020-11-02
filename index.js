@@ -57,14 +57,15 @@ app.use(express.static(__dirname + "/public"));
 app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
 app.use('/bk-products-api', require(__dirname + '/src/backend-ms/products'));
+app.use('/bk-contracts-api', require(__dirname + '/src/backend-ms/contracts'));
 app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 
 
 
-// server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
+server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
 
-app.listen(process.env.PORT || 5000, ()=>{
-  console.log(`Server has started on port ${PORT}`);
-})
+// app.listen(process.env.PORT || 5000, ()=>{
+//   console.log(`Server has started on port ${PORT}`);
+// })
