@@ -1,11 +1,8 @@
 const users = []
 
 const addUser = ({ id, name, room }) => {
-    // name = name.trim().toLowerCase()
-    // room = room.trim().toLowerCase()
 
-    name = '123'
-    room = 'aaa'
+    room = '直物生活文具'
 
     const existingUser = users.find((user) => user.room === room && user.name === name)
 

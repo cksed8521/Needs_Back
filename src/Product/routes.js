@@ -8,31 +8,33 @@ router.get("/", (req, res) => {
 });
 
 async function getProductData(id) {
-  const detail_sql =
+  const product_sql =
     "SELECT products.*, product_categories.name FROM products JOIN product_categories ON products.categories_id = product_categories.id WHERE products.id = ?";
-  const [[detail]] = await db.query(detail_sql, [id]);
+  const [[product]] = await db.query(product_sql, [id]);
 
   const skus_sql = "SELECT * FROM product_skus WHERE product_id = ?";
   const [skus] = await db.query(skus_sql, [id]);
-  detail.skus = skus;
+  product.skus = skus;
 
-  // const images_sql = "SELECT image FROM product_images WHERE product_id = ?";
-  // const [images] = await db.query(images_sql, [id]);
-  // const reformattedArray = images.map((item) => Object.values(item)[0]);
+  const images = product.image_path.trim().split(",");
+  product.image_path = images;
 
-  // detail.images = reformattedArray;
-  return detail;
+  return product;
 }
 
 async function getMerchantData(id, exclude) {
   const merchant_sql =
     "SELECT * FROM merchants LEFT JOIN brand_info ON merchants.id = brand_info.merchant_id WHERE merchants.id=?";
-  const [[detail]] = await db.query(merchant_sql, [id]);
+  const [[merchant]] = await db.query(merchant_sql, [id]);
 
   const products_sql =
     "SELECT id,title,image_path FROM products WHERE merchant_id=? and id!=? LIMIT 6";
   const [products] = await db.query(products_sql, [id, exclude]);
-  detail.products = products;
+
+  merchant.products = products.map((product) => {
+    product.image_path = product.image_path.trim().split(",")[0];
+    return product;
+  });
 
   const reformattedArray = products.map((item) => Object.values(item)[0]);
   const placeholder = Array(reformattedArray.length).fill("?").join();
@@ -45,13 +47,23 @@ async function getMerchantData(id, exclude) {
     sku = skus.find((s) => s.product_id == product.id);
     return (product.price = sku.price), (product.sale_price = sku.sale_price);
   });
-  detail.created_time = 2
-  detail.review = 4.8
-  detail.review_amount = 3600
-  detail.fans = 21
-  detail.product_amount = 23
 
-  return detail;
+  let since = new Date(merchant.created_at);
+  let now = new Date();
+  let months = (since.getFullYear() - now.getFullYear()) * 12;
+  months -= since.getMonth();
+  months += now.getMonth();
+  merchant.created_months = months;
+
+  const product_count_sql = "SELECT COUNT(1) as count FROM products WHERE merchant_id = ?";
+  const [[row]] = await db.query(product_count_sql, [id]);
+  merchant.product_amount = row.count;
+
+  merchant.review = 4.8;
+  merchant.review_amount = 3600;
+  merchant.fans = 21;
+
+  return merchant;
 }
 
 router.get("/:id", async (req, res) => {
