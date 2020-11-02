@@ -38,7 +38,7 @@ router.post('/fetchUrl', upload.single("image") ,(req,res) => {
 
 // get all article
 router.get("/", (req, res) => {
-  db.query("SELECT * FROM article").then(([results])=>{
+  db.query("SELECT * FROM `article` ORDER BY `article`.`id` DESC").then(([results])=>{
     res.json(results)
   })
 });

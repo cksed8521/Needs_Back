@@ -20,9 +20,6 @@ const io = socketio(server);
 app.use(router);
 app.use(cors());
 
-app.post("/upload", upload.single("avatar"), (req, res) => {
-  console.log(req.file);
-});
 
 io.on("connection", (socket) => {
   socket.on("join", ({ name, room }, callback) => {
