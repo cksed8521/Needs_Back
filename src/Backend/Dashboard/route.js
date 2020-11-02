@@ -84,7 +84,13 @@ router.get("/amountoforders", (req, res) => {
 });
 
 router.get("/merchantsellrank", (req, res) => {
-  db.query("SELECT * FROM `products` INNER JOIN product_skus ON products.id = product_skus.product_id INNER JOIN order_products ON product_skus.id = order_products.product_sku_id WHERE merchant_id = 3 ORDER BY product_sku_id ASC").then(([result]) => {
+  db.query("SELECT *, count(1) total_order_amount, SUM(quantity) total_quantity FROM `products` INNER JOIN product_skus ON products.id = product_skus.product_id INNER JOIN order_products ON product_skus.id = order_products.product_sku_id INNER JOIN product_categories ON product_categories.id = products.categories_id WHERE merchant_id = 3 GROUP BY product_id ORDER BY total_quantity DESC").then(([result]) => {
+    res.json(result);
+  });
+});
+
+router.get("/merchantsellrankgroupbyname", (req, res) => {
+  db.query("SELECT *, count(1) total_order_amount, SUM(quantity) total_quantity FROM `products` INNER JOIN product_skus ON products.id = product_skus.product_id INNER JOIN order_products ON product_skus.id = order_products.product_sku_id INNER JOIN product_categories ON product_categories.id = products.categories_id WHERE merchant_id = 3 GROUP BY name ORDER BY total_quantity DESC").then(([result]) => {
     res.json(result);
   });
 });
