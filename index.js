@@ -10,9 +10,10 @@ const PORT = process.env.PORT || 5000
 const fs = require('fs')
 const {v4: uuidv4} = require('uuid')
 const socketio = require('socket.io')
-const multer = require("multer");
+const multer = require("multer")
 const upload = multer({ dest: __dirname + "/tmp_uploads" })
 const axios = require('axios')
+const moment = require('moment')
 
 
 const cors = require('cors')
@@ -29,35 +30,41 @@ const io = socketio(server)
 const router = require('./router')
 
 
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({extended: false}))
 app.use(express.json())
 app.use(router)
-app.use(cors(corsOptions))
+app.use(cors())
 
 
 //測試資料庫連線
 app.get("/try-db", (req, res) => {
-  db.query("SELECT * FROM`products` WHERE 1").then(([result]) => {
+  db.query("SELECT * FROM`customers` WHERE 1").then(([result]) => {
     res.json(result);
   })
 })
 
 
+//測試圖片上傳
+app.post("/try-uploads", upload.single("img"), (req, res) => {
+  console.log(1);
+  console.log(req.file);
+  console.log(2);
+  res.json(req.file);
+});
+
+
 //引用自己的route資料夾
+app.use(express.static(__dirname + "/public"));
 app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
-
-
+app.use('/bk-products-api', require(__dirname + '/src/backend-ms/products'));
+app.use('/bk-contracts-api', require(__dirname + '/src/backend-ms/contracts'));
 app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
+app.use("/member", require(__dirname + "/src/member/memberdata_api"));
 
 
-app.use(express.static(__dirname + "/public/"));
-
-// server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
 
 
-app.listen(process.env.PORT || 5000, ()=>{
-  console.log(`Server has started on port ${PORT}`);
-})
+server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
