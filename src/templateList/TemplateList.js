@@ -9,6 +9,8 @@ const router = express.Router();
 
 router.use(express.urlencoded({ extended: false }));
 router.use(express.json());
+
+
 //get picture
 // router.post("/upload", upload.array("imgage",12), (req, res) => {
 //   const TempFile = req.files.upload
@@ -26,44 +28,63 @@ router.use(express.json());
 // });
 
 
-// get all article
-router.get("/", (req, res) => {
-  db.query("SELECT * FROM template").then(([results])=>{
-    res.json(results)
-  })
-});
+// get all template
+// router.get("/", (req, res) => {
+//   db.query("SELECT * FROM template").then(([results])=>{
+//     res.json(results)
+//   })
+// });
 
-//get an article
-router.get("/:id", async(req, res) => {
-  const sql = "SELECT * FROM template WHERE id=?";
+//get sepcific template
+// router.get("/:id", async(req, res) => {
+//   const sql = "SELECT * FROM template WHERE id=?";
 
-    const [results] = await db.query(sql, [req.params.id]);
-    if(! results.length){
+//     const [results] = await db.query(sql, [req.params.id]);
+//     if(! results.length){
+//         return res.json('error');
+//     }
+//     res.json(results[0]);
+// });
+
+//get free template
+router.get("/", async(req, res) => {
+  console.log('req',req)
+  const sql = `SELECT template.*, plan_type.name AS plan_name
+                FROM template 
+                LEFT JOIN plan_type
+                ON template.plan_id = plan_type.id
+                WHERE plan_type.id = ?`;
+
+    const [results] = await db.query(sql, [req.query.type]);
+
+    console.log('results',results)
+    if(!results.length){
         return res.json('error');
     }
-    res.json(results[0]);
+    res.json(results);
 });
 
-router.post('/',upload.none(),async(req, res) => {
-  console.log(req.body);
-  if ( !req.body[0]) return
-    const data = {
-      title: req.body[0],
-      image: req.body[1],
-      outline: req.body[2],
-      detial: JSON.stringify(req.body[3]),
-    };
-  const sql =
-    "INSERT INTO `template` set ?";
-   console.log("3");
-  const [{ affectedRows, insertId }] = await db.query(sql, [data]);
-    console.log("4");
-  res.json({
-    success: !!affectedRows,
-    affectedRows,
-    insertId,
-  });
-});
+
+// router.post('/',upload.none(),async(req, res) => {
+//   console.log(req.body);
+//   if ( !req.body[0]) return
+//     const data = {
+//       title: req.body[0],
+//       image: req.body[1],
+//       outline: req.body[2],
+//       detial: JSON.stringify(req.body[3]),
+//     };
+//   const sql =
+//     "INSERT INTO `template` set ?";
+//    console.log("3");
+//   const [{ affectedRows, insertId }] = await db.query(sql, [data]);
+//     console.log("4");
+//   res.json({
+//     success: !!affectedRows,
+//     affectedRows,
+//     insertId,
+//   });
+// });
 
 
 // router.get("/articles/:id", (req, res) => {
