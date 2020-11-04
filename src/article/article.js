@@ -69,6 +69,24 @@ router.post('/',upload.single("image"),async(req, res) => {
   });
 });
 
+
+
+async function getArticle(id) {
+  const article_sql =
+  'SELECT * FROM `article` WHERE article.id=?'
+  const [[product]] = await db.query(article_sql, [id]);
+
+  return product;
+}
+
+
+router.get("/:id", async (req, res) => {
+console.log(req.params.id)
+  res.json(await getArticle(req.params.id));
+});
+
+
+
 // send email
 // router.post('/email', (req, res) =>{
 //   // const [sql] = "SELECT `name`, `email` FROM `customers`"

@@ -26,6 +26,9 @@ async function getProducts(products) {
   });
 }
 
+
+
+
 //get all products
 router.get("/" , async(req, res) => {
   const choice = req.query.sort
@@ -34,6 +37,8 @@ router.get("/" , async(req, res) => {
         // sort by lastest
         const [products] = await db.query("SELECT products.*, product_categories.name FROM products JOIN product_categories ON products.categories_id = product_categories.id ORDER BY `products`.`created_at` DESC");
 
+        // const filters = products.filter(product => product.name === '鋼筆/沾水筆/墨水')
+        // console.log(filters)
         res.json(await getProducts(products));
       break
 
@@ -60,14 +65,9 @@ router.get("/" , async(req, res) => {
 }
 })
 
-router.get('/:id' , async (req,res) =>{
-    const sql = "SELECT * FROM `products` WHERE id=?"
-
-    const [results] = await db.query(sql, [req.params.id])
-    if(! results.length) return res.send('No found data')
-
-    res.json(results)
-  
+router.get('/categories' , async (req,res) =>{
+    const [categories] = await db.query("SELECT * FROM `product_categories`")
+    res.json(categories)
 })
 
 
