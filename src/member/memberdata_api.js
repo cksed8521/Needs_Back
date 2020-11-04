@@ -6,7 +6,7 @@ const router = express.Router();
 
 //
 router.get("/", async (req, res) => {
-    const sql = "SELECT * FROM `customers` WHERE id=?"
+    const sql = "SELECT * FROM `customers` WHERE id=1"
     const [results] = await db.query(sql, [req.query.id])
 
     results.forEach(el=>{

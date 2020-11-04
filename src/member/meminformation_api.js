@@ -6,7 +6,7 @@ const router = express.Router();
 
 //
 router.get("/", async (req, res) => {
-  const sql = "SELECT order_evaluations.*, merchants.brand_name FROM order_evaluations LEFT JOIN merchants ON order_evaluations.merchant_id = merchants.id WHERE `customer_id` = ?";
+  const sql = "SELECT customer_subscribes.*, merchants.brand_name,information.* FROM customer_subscribes LEFT JOIN merchants ON customer_subscribes.merchant_id = merchants.id LEFT JOIN information ON customer_subscribes.merchant_id = information.merchant_id WHERE customer_id = 1";
   const [results] = await db.query(sql, [req.query.customer_id]);
 
   //query為後端api給資料/params為前端網址列提供id訊息/   為form表單提供資料

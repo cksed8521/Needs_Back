@@ -64,8 +64,8 @@ app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
 app.use("/comment", require(__dirname + "/src/member/memcomment_api"));
-
-
+app.use("/like", require(__dirname + "/src/member/memlike_api"));
+app.use("/inform", require(__dirname + "/src/member/meminformation_api"));
 
 
 server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
