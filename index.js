@@ -12,7 +12,7 @@ const {v4: uuidv4} = require('uuid')
 const socketio = require('socket.io')
 const multer = require("multer");
 const upload = multer({ dest: __dirname + "/tmp_uploads" })
-const axios = require('axios')
+const axios = require('axios') 
 
 
 const cors = require('cors')
@@ -47,10 +47,6 @@ app.get("/try-db", (req, res) => {
 //引用自己的route資料夾
 app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
-
-
-
-
 
 
 app.post("/try-uploads", upload.single("img"), (req, res) => {

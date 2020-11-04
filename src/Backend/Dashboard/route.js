@@ -4,7 +4,7 @@ const db = require(__dirname + "/../../db_connect");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.send({ response: "dashboard" }).status(200);
+  res.send('hi')
 });
 
 router.get("/star", (req, res) => {
@@ -95,6 +95,24 @@ router.get("/merchantsellrankgroupbyname", (req, res) => {
   });
 });
 
+router.get("/adsinprogress", (req, res) => {
+  db.query("SELECT * FROM `ads_in_progress` ORDER BY start_date DESC").then(([result]) => {
+    res.json(result);
+  });
+});
+
+
+router.get("/adsinprogressforctr", (req, res) => {
+  db.query("SELECT ads_data.ads_id, clicks_day, impressions_day, days_date  FROM `ads_in_progress` INNER JOIN ads_data ON ads_in_progress.sid = ads_data.ads_id  ORDER BY days_date DESC").then(([result]) => {
+    res.json(result); 
+  });
+});
+
+router.post("/addnewads", (req, res) => {
+  db.query("INSERT INTO `ads_new_ads`(`sid`, `merchant_id`, `title`, `budget`, `bid`, `start_date`, `end_date`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6],[value-7])").then(([result]) => {
+    res.json(result); 
+  });
+});
 
 
 
