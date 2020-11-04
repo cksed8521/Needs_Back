@@ -70,5 +70,4 @@ router.get('/categories' , async (req,res) =>{
     res.json(categories)
 })
 
-
 module.exports = router;
