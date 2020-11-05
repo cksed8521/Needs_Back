@@ -38,11 +38,7 @@ app.use(cors())
 
 //測試資料庫連線
 app.get("/try-db", (req, res) => {
-<<<<<<< HEAD
-  db.query("SELECT * FROM`customers` WHERE 1").then(([result]) => {
-=======
   db.query("SELECT * FROM `products` WHERE 1").then(([result]) => {
->>>>>>> origin/Cerise
     res.json(result);
   })
 })
@@ -63,14 +59,13 @@ app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
 app.use('/bk-products-api', require(__dirname + '/src/backend-ms/products'));
 app.use('/bk-contracts-api', require(__dirname + '/src/backend-ms/contracts'));
+app.use('/bk-orders-api', require(__dirname + '/src/backend-ms/orders'));
 app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
-<<<<<<< HEAD
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
-=======
 app.use('/TemplateList', require( __dirname + '/src/TemplateList/TemplateList'));
->>>>>>> origin/Cerise
+
 
 
 
