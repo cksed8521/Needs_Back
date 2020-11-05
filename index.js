@@ -11,7 +11,7 @@ const fs = require('fs')
 const {v4: uuidv4} = require('uuid')
 const socketio = require('socket.io')
 const multer = require("multer")
-const upload = multer({ dest: __dirname + "/tmp_uploads" })
+const upload = multer({ dest: __dirname + "/tmp_uploadsc" })
 const axios = require('axios')
 const moment = require('moment-timezone')
 

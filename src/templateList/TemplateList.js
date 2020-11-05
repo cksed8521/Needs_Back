@@ -2,7 +2,8 @@ const express = require("express");
 
 const db = require(__dirname + "/../db_connect");
 const fs = require("fs");
-const multer = require('multer')
+const multer = require('multer');
+const { type } = require("os");
 const upload = multer({dest:__dirname+'/image'})
 // const moment = require('moment-timezone');
 const router = express.Router();
@@ -48,12 +49,34 @@ router.use(express.json());
 
 //get free template
 router.get("/", async(req, res) => {
-  console.log('req',req)
-  const sql = `SELECT template.*, plan_type.name AS plan_name
-                FROM template 
-                LEFT JOIN plan_type
-                ON template.plan_id = plan_type.id
-                WHERE plan_type.id = ?`;
+    // const sql = `SELECT template.*, plan_type.name AS plan_name FROM template 
+    // LEFT JOIN plan_type
+    // ON template.plan_id = plan_type.id
+    // WHERE plan_type.id = ?`  
+    let sql=``
+    {[req.query.type] == 3 ? 
+       sql= `SELECT template.*, plan_type.name AS plan_name FROM template 
+       LEFT JOIN plan_type
+       ON template.plan_id = plan_type.id`
+    :
+     sql=`
+    SELECT template.*, plan_type.name AS plan_name FROM template 
+        LEFT JOIN plan_type
+        ON template.plan_id = plan_type.id
+        WHERE plan_type.id = ?`;
+    }
+  console.log('req',req.query.type)
+        // req.query.type !== 3 ? 
+        //  sql = `SELECT template.*, plan_type.name AS plan_name FROM template 
+        // LEFT JOIN plan_type
+        // ON template.plan_id = plan_type.id
+        // WHERE plan_type.id = ?`;
+        // :
+        // const sql = `SELECT template.*, plan_type.name AS plan_name FROM template 
+        // LEFT JOIN plan_type
+        // ON template.plan_id = plan_type.id`;
+        // }
+        
 
     const [results] = await db.query(sql, [req.query.type]);
 
