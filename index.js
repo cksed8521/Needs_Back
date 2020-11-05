@@ -11,7 +11,7 @@ const fs = require('fs')
 const {v4: uuidv4} = require('uuid')
 const socketio = require('socket.io')
 const multer = require("multer")
-const upload = multer({ dest: __dirname + "/tmp_uploads" })
+const upload = multer({ dest: __dirname + "/tmp_uploadsc" })
 const axios = require('axios')
 const moment = require('moment')
 
@@ -38,7 +38,11 @@ app.use(cors())
 
 //測試資料庫連線
 app.get("/try-db", (req, res) => {
+<<<<<<< HEAD
   db.query("SELECT * FROM`customers` WHERE 1").then(([result]) => {
+=======
+  db.query("SELECT * FROM `products` WHERE 1").then(([result]) => {
+>>>>>>> origin/Cerise
     res.json(result);
   })
 })
@@ -62,7 +66,11 @@ app.use('/bk-contracts-api', require(__dirname + '/src/backend-ms/contracts'));
 app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
+<<<<<<< HEAD
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
+=======
+app.use('/TemplateList', require( __dirname + '/src/TemplateList/TemplateList'));
+>>>>>>> origin/Cerise
 
 
 
