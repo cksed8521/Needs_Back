@@ -2,18 +2,27 @@ require('dotenv').config()
 
 const express = require('express')
 const app = express()
+const http = require('http');
 const db = require(__dirname+'/src/db_connect')
-const http = require('http')
 const PORT = process.env.PORT || 5000
 
 //如自己葉面需要用可以從這裡copy到自己的檔案裡
 const fs = require('fs')
 const {v4: uuidv4} = require('uuid')
-const socketio = require('socket.io')
 const multer = require("multer")
 const upload = multer({ dest: __dirname + "/tmp_uploadsc" })
 const axios = require('axios')
 const moment = require('moment')
+
+const socketio = require('socket.io')
+const {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom,
+} = require(__dirname +'/src/Chat/users');
+const server = http.createServer(app);
+const io = socketio(server);
 
 
 const cors = require('cors')
@@ -25,8 +34,6 @@ const corsOptions = {
   }
 }
 
-const server = http.createServer(app)
-const io = socketio(server)
 const router = require('./router')
 
 
@@ -68,6 +75,61 @@ app.use('/TemplateList', require( __dirname + '/src/TemplateList/TemplateList'))
 
 
 
+//socketIo
+io.on("connection", (socket) => {
+  socket.on("join", ({ name, room }, callback) => {
+    const { error, user } = addUser({ id: socket.id, name, room });
 
+    if (error) return callback(error);
+
+    socket.join(user.room);
+
+    socket.emit("message", {
+      user: "admin",
+      text: `${user.name}, welcome to the room ${user.room}`,
+    });
+    socket.broadcast
+      .to(user.room)
+      .emit("message", { user: "admin", text: `${user.name} has joined` });
+
+    io.to(user.room).emit("roomData", {
+      room: user.room,
+      users: getUsersInRoom(user.room),
+    });
+
+    callback();
+  });
+
+  socket.on("sendMessage", (message, callback) => {
+    const user = getUser(socket.id);
+
+    io.to(user.room).emit("message", { user: user.name, text: message });
+
+    callback();
+  });
+
+  socket.on("disconnect", () => {
+    const user = removeUser(socket.id);
+
+    if (user) {
+      io.to(user.room).emit("message", {
+        user: "admin",
+        text: `${user.name} has left. `,
+      });
+      io.to(user.room).emit("roomData", {
+        room: user.room,
+        users: getUsersInRoom(user.room),
+      });
+    }
+  });
+});
+
+
+app.use(express.static(__dirname + "/public/"));
 
 server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
+
+// app.listen(process.env.PORT || 5000, ()=>{
+//   console.log(`Server has started on port ${PORT}`);
+// })
+
