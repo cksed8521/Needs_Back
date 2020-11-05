@@ -5,6 +5,12 @@ const moment = require('moment-timezone');
 const router = express.Router();
 const upload = require(__dirname + '/articleUploadModule');
 
+//email
+const nodemailer = require('nodemailer')
+const mailGun = require('nodemailer-mailgun-transport');
+const sendMail = require("./mail");
+const sendmail = require(__dirname+"/mail")
+
 
 //success to upload into EditorJS
 router.post('/fetchUrl', upload.single("image") ,(req,res) => {
@@ -13,9 +19,6 @@ router.post('/fetchUrl', upload.single("image") ,(req,res) => {
       "success" : 1,
       "file": {
           "url" : imgPath,
-          "style":{
-            width:'270px',
-          }
           // ... and any additional fields you want to store, such as width, height, color, extension, etc
       }
   })
@@ -38,7 +41,7 @@ router.post('/fetchUrl', upload.single("image") ,(req,res) => {
 
 // get all article
 router.get("/", (req, res) => {
-  db.query("SELECT * FROM article").then(([results])=>{
+  db.query("SELECT * FROM `article` ORDER BY `article`.`id` DESC").then(([results])=>{
     res.json(results)
   })
 });
@@ -54,13 +57,6 @@ router.post('/',upload.single("image"),async(req, res) => {
   const setOutline = req.body[2]
   const setDetial = req.body[3]
 
-  // if ( !req.body[0]) return
-    // const data = {
-    //   title: req.body.title,
-    //   image: imgPath,
-    //   outline: req.body.outline,
-    //   detial: JSON.stringify(req.body.detial),
-    // };
   const sql =
     "INSERT INTO `article`(`title`, `image`, `outline`, `detial`,create_at) VALUES (?,?,?,?,now())";
    console.log("3");
@@ -75,34 +71,38 @@ router.post('/',upload.single("image"),async(req, res) => {
 
 
 
-//get an article
-// router.get("/:id", async(req, res) => {
-//   const sql = "SELECT * FROM article WHERE id=?";
+async function getArticle(id) {
+  const article_sql =
+  'SELECT * FROM `article` WHERE article.id=?'
+  const [[product]] = await db.query(article_sql, [id]);
 
-//     const [results] = await db.query(sql, [req.params.id]);
-//     if(! results.length){
-//         return res.json('error');
+  return product;
+}
+
+
+router.get("/:id", async (req, res) => {
+console.log(req.params.id)
+  res.json(await getArticle(req.params.id));
+});
+
+
+
+// send email
+// router.post('/email', (req, res) =>{
+//   // const [sql] = "SELECT `name`, `email` FROM `customers`"
+//   const { title, email,text} = req.body
+//   email = ''
+//   sendMail(email, title, text , function(err,data){
+//     if(err){
+//       res.status(500).json({message:'Internal Error'})
+//     } else {
+//       res.json({message:'Email Send'})
 //     }
-//     res.json(results[0]);
-// });
+//   })
+//   res.json({message:'Message received!'})
+// })
 
 
-
-//get picture
-// router.post("/upload", upload.array("imgage",12), (req, res) => {
-//   const TempFile = req.files.upload
-//   const TempPathFile = TempFile.path
-
-//   const targetPathUrl = path.join(__dirname + "/image/" + TempFile.name)
-  
-//   if(path.extname(TempFile.originalFilename).toLowerCase() === ".png" || ".jpg"){
-//     fs.rename(TempPathFile,targetPathUrl ,err => {
-//       if(err) return console.log(err)
-//     }) 
-//   }
-
-//   console.log(req.file);
-// });
 
 
 module.exports = router;
