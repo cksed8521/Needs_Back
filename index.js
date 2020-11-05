@@ -70,6 +70,7 @@ app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
+// app.put("/member", require(__dirname + "/src/member/memberdata_api")=>{res.json(req.body)});
 app.use("/comment", require(__dirname + "/src/member/memcomment_api"));
 app.use("/like", require(__dirname + "/src/member/memlike_api"));
 app.use("/inform", require(__dirname + "/src/member/meminformation_api"));

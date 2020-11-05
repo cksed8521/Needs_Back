@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
     const sql = "SELECT * FROM `customers` WHERE id=?"
     const [results] = await db.query(sql, [req.query.id])
-    // console.log('res',res)
+console.log('res',res)
     results.forEach(el=>{
         el.birthday = moment(el.birthday).format('YYYY-MM-DD');
         el.creat_date = moment(el.creat_date).format('YYYY-MM-DD');
