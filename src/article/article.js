@@ -87,20 +87,25 @@ console.log(req.params.id)
 
 
 
-// send email
-// router.post('/email', (req, res) =>{
-//   // const [sql] = "SELECT `name`, `email` FROM `customers`"
-//   const { title, email,text} = req.body
-//   email = ''
-//   sendMail(email, title, text , function(err,data){
-//     if(err){
-//       res.status(500).json({message:'Internal Error'})
-//     } else {
-//       res.json({message:'Email Send'})
-//     }
-//   })
-//   res.json({message:'Message received!'})
-// })
+// send email (email, title , text)
+router.post('/email', (req, res) =>{
+  // const [sql] = "SELECT `name`, `email` FROM `customers`"
+  // const { subject,text} = req.body
+  const subject = req.body[0]
+  const image = req.body[1]
+  const html = req.body[2].__html
+  console.log('subject' , req.body[0])
+  console.log('image' , req.body[1])
+  console.log('html' , req.body[2].__html)
+  
+  sendMail(subject,image ,html , function(err,data){
+    if(err){
+      res.status(500).json({message:'Internal Error'})
+    } else {
+      res.json({message:'Email Send'})
+    }
+  })
+})
 
 
 
