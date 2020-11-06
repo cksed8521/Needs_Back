@@ -1,6 +1,4 @@
 const express = require("express");
-const multer = require("multer");
-const upload = multer({ dest: __dirname + "/../tmp_uploads" });
 
 const socketio = require("socket.io");
 const http = require("http");
@@ -22,9 +20,7 @@ const io = socketio(server);
 app.use(router);
 app.use(cors());
 
-app.post("/upload", upload.single("avatar"), (req, res) => {
-  console.log(req.file);
-});
+
 
 io.on("connection", (socket) => {
   socket.on("join", ({ name, room }, callback) => {
