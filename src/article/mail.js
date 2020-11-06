@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer')
-const mailGun = require('nodemailer-mailgun-transport')
 
 const transport = nodemailer.createTransport({
     service:"Gmail",
