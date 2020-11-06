@@ -18,6 +18,7 @@
     "express": "^4.17.1",
     "express-mysql-session": "^2.1.4",
     "fs": "^0.0.1-security",
+    "install": "^0.13.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.31",
     "multer": "^1.4.2",
