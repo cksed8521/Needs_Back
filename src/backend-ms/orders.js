@@ -6,8 +6,6 @@ const multer  = require('multer')
 const upload = multer()
 
 //GET
-
-
 async function getListData(req) {
     const output = {
       page: 0,
@@ -19,13 +17,14 @@ async function getListData(req) {
       endPage: 0,
       rows: [],
     }
-    //filter: all ended
+    //filter: all unpaid backorder returning
     switch (req.query.filter) {
-      //ended
-
       default:
         let sqlMerchantId =
-          'SELECT COUNT(1) totalRows from orders AS A WHERE A.merchant_id = ?'
+          `SELECT COUNT(1) totalRows from order_products D 
+          LEFT JOIN orders A ON D.order_id = A.id
+          LEFT JOIN product_skus E ON D.product_sku_id = E.id
+          LEFT JOIN products F ON E.product_id = F.id WHERE F.merchant_id  = ?`
         const [[{ totalRows }]] = await db.query(sqlMerchantId, [req.query.id])
         console.log('totalRows', totalRows)
         if (totalRows > 0) {
@@ -61,36 +60,47 @@ async function getListData(req) {
             output.endPage = endPage
           })(page, output.totalPages, 3)
   
-          let sqlGetMerchantData = ` SELECT A.id, A.contract_id, B.name AS plan_name, 
-                                            A.start_date, A.end_date, A.amount, A.paid_time
-                                            FROM contracts A
-                                            LEFT JOIN plan_type B
-                                            ON A.plan_id = B.id
-                                      WHERE A.merchant_id = ?
-                                      ORDER BY id DESC LIMIT ${
-                                        (output.page - 1) * output.perPage
-                                      }, ${output.perPage}`
-  
-          const [results] = await db.query(sqlGetMerchantData, [req.query.id])
-          results.forEach((el, index, arr) => {
-            if (el.paid_time) arr[index].payment_status = '已付款'
-            if (!el.paid_time && moment(el.start_date).isAfter(Date.now())) arr[index].payment_status = '未付款'
-            if ((!el.paid_time) && moment(el.start_date).isBefore(Date.now())) arr[index].payment_status = '已逾期'
-            const diffDays = moment(el.end_date).diff(moment(el.start_date), 'days') + 1
-            arr[index].total_days = diffDays
-            el.start_date = moment(el.start_date).format('YYYY-MM-DD')
-            el.end_date = moment(el.end_date).format('YYYY-MM-DD')
-            el.paid_time = moment(el.paid_time).format('YYYY-MM-DD H:m:s')
+          let sqlGetOrderProdData = `SELECT A.id, D.order_id, D.id AS order_prodlist_id, F.title, F.image_path,
+                                  D.unit_price, D.quantity, E.id AS skud_id, E.specification  
+                                  FROM order_products D 
+                                  LEFT JOIN orders A ON D.order_id = A.id
+                                  LEFT JOIN product_skus E ON D.product_sku_id = E.id
+                                  LEFT JOIN products F ON E.product_id = F.id WHERE F.merchant_id = ?
+                                  ORDER BY A.id DESC LIMIT ${(output.page - 1) * output.perPage}, ${output.perPage}`
+
+          let sqlGetOrderData = `SELECT A.id, A.order_number, G.name AS purchaser, A.created_at, H.name AS payment_type,
+                                        A.status, B.type AS delivery_type, B.price AS delivery_fee, 
+                                        B.full_name AS reciever, B.address, B.phone_number
+                                        FROM orders A 
+                                        LEFT JOIN customers G ON A.customer_id = G.id
+                                        LEFT JOIN order_payments C ON A.payment_id = C.id
+                                        LEFT JOIN payment_type H ON C.type = H.id
+                                        LEFT JOIN order_deliveries B ON A.delivery_id = B.id
+                                        ORDER BY A.id DESC`
+
+          const [productRows] = await db.query(sqlGetOrderProdData, [req.query.id])
+          const [orderRows] = await db.query(sqlGetOrderData)
+
+          orderRows.forEach((el) => {
+            el.created_at = moment(el.start_date).format('YYYY-MM-DD')
+          })
+
+          //先過濾orders清單中屬於廠商ID12的訂單編號
+          const targetOrder = orderRows.filter(order => productRows.some(prod => prod.order_id === order.id))
+          //把產品明細塞入對應的訂單編號中
+          const arr = targetOrder.map(order => {
+            const prod_list = productRows.filter(prod => prod.order_id === order.id)
+            order.prod_list = prod_list
+            order.sum = order.delivery_fee + prod_list.reduce((a, b) => a + b.unit_price * b.quantity, 0)
+            return order
           })
           output.filter = 'all'
-          output.rows = results
+          output.rows = arr
         }
   
         return output
     }
   }
-
-
 
 
 
