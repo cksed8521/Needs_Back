@@ -45,7 +45,7 @@ app.use(cors())
 
 //測試資料庫連線
 app.get("/try-db", (req, res) => {
-  db.query("SELECT * FROM`customers` WHERE 1").then(([result]) => {
+  db.query("SELECT * FROM `customers` WHERE id=?").then(([result]) => {
     res.json(result);
   })
 })
@@ -68,8 +68,14 @@ app.use('/bk-products-api', require(__dirname + '/src/backend-ms/products'));
 app.use('/bk-contracts-api', require(__dirname + '/src/backend-ms/contracts'));
 app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
-app.use("/article", require(__dirname + "/src/article/article"));
+// app.use("/article", require(__dirname + "/src/article/article"));
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
+app.post("/member", require(__dirname + "/src/member/memberdata_api"));
+// app.use("/avatar", require(__dirname + "/src/member/avatar_api"));
+// app.post("/avatar", require(__dirname + "/src/member/avatar_api"));
+app.use("/comment", require(__dirname + "/src/member/memcomment_api"));
+app.use("/like", require(__dirname + "/src/member/memlike_api"));
+app.use("/inform", require(__dirname + "/src/member/meminformation_api"));
 
 
 //socketIo
