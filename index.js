@@ -71,6 +71,7 @@ app.use('/orders', require('./src/order/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
+app.use('/payments', require('./src/payment/routes.js'));
 
 
 //socketIo
