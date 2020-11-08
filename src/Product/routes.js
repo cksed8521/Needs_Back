@@ -3,9 +3,6 @@ const { exists } = require("fs");
 const db = require(__dirname + "/../db_connect");
 const router = express.Router();
 
-// router.get("/", (req, res) => {
-//   res.send({ response: "products" }).status(200);
-// });
 
 async function getProducts() {
   const [products] = await db.query("SELECT * FROM products ");
@@ -113,6 +110,11 @@ async function getProductSkusGroupByMerchant(skuIds) {
   return Object.values(rows);
 }
 
+async function getUserInfo(userId) {
+  const [[userInfo]] = await db.query("SELECT name,phone_number,address FROM customers WHERE id=?", [userId]);
+    return userInfo;
+  };
+
 router.post("/bulk-get-product-skus", async (req, res) => {
   res.json(await getProductSkusGroupByMerchant(req.body.skuIds));
 });
@@ -125,7 +127,11 @@ router.get("/merchant/:id", async (req, res) => {
   res.json(await getMerchantData(req.params.id, req.query.exclude));
 });
 
-router.get("/", async (req, res) => {
+router.post("/userInfo", async (req, res) => {
+  res.json(await getUserInfo(req.body.userId));
+});
+
+router.get("/all", async (req, res) => {
   res.json(await getProducts());
 });
 
