@@ -4,16 +4,15 @@ const Payment = require('./models/payment');
 const Order = require("../order/models/order");
 const Customer = require("../common/models/customer");
 
-const host = process.env.URL;
+const backendHost = process.env.BACKEND_URL;
 const merchantId = process.env.MERCHANT_ID;
 const hashKey = process.env.HASH_KEY;
 const hashIV = process.env.HASH_IV;
 
 const ePaymentGateway = 'https://ccore.spgateway.com/MPG/mpg_gateway';
-const returnURL = host + '/payments/:paymentId/trade/return-callback';
-const notifyURL = host + '/payments/:paymentId/trade/notify-callback';
-const clientURL = host + '/payments/:paymentId/trade/client-callback';
-
+const returnURL = backendHost + '/payments/:paymentId/trade/return-callback';
+const notifyURL = backendHost + '/payments/:paymentId/trade/notify-callback';
+const clientURL = process.env.FRONTEND_URL + '/order_complete';
 
 class TradeService {
 

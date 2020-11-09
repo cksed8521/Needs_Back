@@ -58,17 +58,18 @@ async function createOrderInTransaction(order) {
 
   // id, order_id, product_sku_id, unit_price, quantity
   sql = `INSERT INTO order_products (order_id, product_sku_id, unit_price, quantity) VALUES `;
-  const insertedValues = newOrderData.orderContent.products.map((product) => {
-    let columns = [];
-    columns.push(
-      order_insertId,
-      product.skuid,
-      product.sale_price ? product.sale_price : product.price,
-      product.amount
-    )
-    return `(${columns.join(',')})`;
-  }).join(',');
-  console.log(sql + insertedValues);
+  const insertedValues = newOrderData.orderContent.products
+    .map((product) => {
+      let columns = [];
+      columns.push(
+        order_insertId,
+        product.skuid,
+        product.sale_price ? product.sale_price : product.price,
+        product.amount
+      );
+      return `(${columns.join(",")})`;
+    })
+    .join(",");
   await db.query(sql + insertedValues);
 
   return {
@@ -77,6 +78,7 @@ async function createOrderInTransaction(order) {
     delivery_insertId,
     payment_insertId,
     order_insertId,
+    order_number: orderData.order_number,
   };
 }
 
@@ -84,9 +86,9 @@ async function addOrder(order) {
   await db.query("START TRANSACTION");
   try {
     const result = await createOrderInTransaction(order);
-    await db.query("ROLLBACK");
+    // await db.query("ROLLBACK");
+    await db.query("COMMIT");
     return result;
-    //   await db.query('COMMIT');
   } catch (e) {
     console.log("Got an error while createing order");
     console.log(e);

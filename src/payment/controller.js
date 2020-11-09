@@ -21,7 +21,7 @@ const controller = {
         const service = new TradeService(undefined)
         try {
             await service.HandleCallback(req.params.paymentId, tradeResult);
-            return res.redirect(process.env.URL + `/payments/${req.params.paymentId}/trade/client-callback`);
+            return res.redirect(process.env.FRONTEND_URL + `/order_complete`);
         } catch (e) {
             console.log(e);
             if (e instanceof HttpException) {
