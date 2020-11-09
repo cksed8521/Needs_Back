@@ -64,13 +64,21 @@ E.product_id = F.id
 C.type = H.name
 
 -- 拿到6筆廠商資料
+SELECT COUNT(1) totalRows from order_products D 
+LEFT JOIN orders A ON D.order_id = A.id
+LEFT JOIN product_skus E ON D.product_sku_id = E.id
+LEFT JOIN products F ON E.product_id = F.id WHERE F.merchant_id  = 12
+ORDER BY A.id DESC
+
 SELECT A.id, D.order_id, D.id AS order_prodlist_id, F.title, F.image_path,
 D.unit_price, D.quantity, E.id AS skud_id, E.specification  
 FROM order_products D 
 LEFT JOIN orders A ON D.order_id = A.id
 LEFT JOIN product_skus E ON D.product_sku_id = E.id
- LEFT JOIN products F ON E.product_id = F.id WHERE F.merchant_id = 12
-ORDER BY A.id DESC
+LEFT JOIN products F ON E.product_id = F.id WHERE F.merchant_id = 12
+ORDER BY A.id DESC 
+
+
 
 
 --訂單基本資料 45筆
@@ -84,3 +92,10 @@ LEFT JOIN payment_type H ON C.type = H.id
 LEFT JOIN order_deliveries B ON A.delivery_id = B.id
 ORDER BY A.id DESC
 
+
+--更新資料表
+UPDATE orders A 
+INNER JOIN order_deliveries B
+ON A.delivery_id = B.id
+SET A.status = 0, B.full_name="喻蓉文2"
+WHERE id = 67
