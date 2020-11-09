@@ -1,17 +1,17 @@
-const express = require("express");
-
-const db = require(__dirname + "/../db_connect");
-const fs = require("fs");
-const multer = require('multer');
-const { type } = require("os");
-const upload = multer({dest:__dirname+'/image'})
+// const fs = require("fs");
+// const multer = require('multer');
+// const { type } = require("os");
+// const upload = multer({dest:__dirname+'/image'})
 // const moment = require('moment-timezone');
+const express = require("express");
+const db = require(__dirname + "/../db_connect");
 const router = express.Router();
+const upload = require(__dirname + '/TemplateUploadmodule');
 
 router.use(express.urlencoded({ extended: false }));
 router.use(express.json());
 
-
+  
 //get picture
 // router.post("/upload", upload.array("imgage",12), (req, res) => {
 //   const TempFile = req.files.upload
@@ -47,12 +47,9 @@ router.use(express.json());
 //     res.json(results[0]);
 // });
 
-//get free template
+//templatelist
+//get all or sepicific template 
 router.get("/", async(req, res) => {
-    // const sql = `SELECT template.*, plan_type.name AS plan_name FROM template 
-    // LEFT JOIN plan_type
-    // ON template.plan_id = plan_type.id
-    // WHERE plan_type.id = ?`  
     let sql=``
     {[req.query.type] == 3 ? 
        sql= `SELECT template.*, plan_type.name AS plan_name FROM template 
@@ -65,18 +62,7 @@ router.get("/", async(req, res) => {
         ON template.plan_id = plan_type.id
         WHERE plan_type.id = ?`;
     }
-  console.log('req',req.query.type)
-        // req.query.type !== 3 ? 
-        //  sql = `SELECT template.*, plan_type.name AS plan_name FROM template 
-        // LEFT JOIN plan_type
-        // ON template.plan_id = plan_type.id
-        // WHERE plan_type.id = ?`;
-        // :
-        // const sql = `SELECT template.*, plan_type.name AS plan_name FROM template 
-        // LEFT JOIN plan_type
-        // ON template.plan_id = plan_type.id`;
-        // }
-        
+  console.log('req',req.query.type)   
 
     const [results] = await db.query(sql, [req.query.type]);
 
@@ -86,6 +72,33 @@ router.get("/", async(req, res) => {
     }
     res.json(results);
 });
+
+
+//editpage-upload-bg-img
+router.post('/',upload.single("image"),async(req, res) => {
+    if(!req.body[0] || !req.body[1] || !req.body[2] || !req.body[3]) return
+      console.log(req.body[0])
+      console.log(req.body[1])
+      console.log(req.body[2])
+      console.log(req.body[3])
+    // const setTitle = req.body[0]
+    // const imgPath = req.body[1]
+    // const setOutline = req.body[2]
+    // const setDetial = req.body[3]
+  
+    const sql =
+      "INSERT INTO `article`(`title`, `image`, `outline`, `detial`,create_at) VALUES (?,?,?,?,now())";
+     console.log("3");
+    const [{ affectedRows, insertId }] = await db.query(sql, [setTitle,imgPath,setOutline,setDetial]);
+      console.log("4");
+    res.json({
+      success: !!affectedRows,
+      affectedRows,
+      insertId,
+    });
+  });
+  
+
 
 
 // router.post('/',upload.none(),async(req, res) => {
