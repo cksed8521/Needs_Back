@@ -43,7 +43,7 @@ router.get("/", async (req, res) => {
   });
 
 router.post("/upload/:id", upload.single("avatar") , async(req, res) =>{
-res.json(req.file)
+console.log(req.params.id)
   const sql =  "UPDATE `customers` SET `avatar` = ? WHERE `id` = ?"
   console.log(2)
   const [{affectedRows , insertId}] = await db.query(sql , [req.file.filename,req.params.id])
