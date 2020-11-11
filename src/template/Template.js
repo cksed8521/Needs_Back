@@ -1,8 +1,3 @@
-// const fs = require("fs");
-// const multer = require('multer');
-// const { type } = require("os");
-// const upload = multer({dest:__dirname+'/image'})
-// const moment = require('moment-timezone');
 const express = require("express");
 const db = require(__dirname + "/../db_connect");
 const router = express.Router();
@@ -62,8 +57,8 @@ router.get("/", async(req, res) => {
         ON template.plan_id = plan_type.id
         WHERE plan_type.id = ?`;
     }
-  console.log('req',req.query.type)   
 
+    console.log('req',req.query.type)   
     const [results] = await db.query(sql, [req.query.type]);
 
     console.log('results',results)
@@ -79,16 +74,12 @@ router.post('/',upload.single("image"),async(req, res) => {
     if(!req.body[0] || !req.body[1] || !req.body[2] || !req.body[3]) return
       console.log(req.body[0])
       console.log(req.body[1])
-      console.log(req.body[2])
-      console.log(req.body[3])
-    // const setTitle = req.body[0]
-    // const imgPath = req.body[1]
-    // const setOutline = req.body[2]
-    // const setDetial = req.body[3]
-  
+
     const sql =
-      "INSERT INTO `article`(`title`, `image`, `outline`, `detial`,create_at) VALUES (?,?,?,?,now())";
+      "UPDATE `brand_info` SET `brand_story` = '?', `bg_img` = '?' WHERE `brand_info`.`id` = ?;"
+      
      console.log("3");
+
     const [{ affectedRows, insertId }] = await db.query(sql, [setTitle,imgPath,setOutline,setDetial]);
       console.log("4");
     res.json({
