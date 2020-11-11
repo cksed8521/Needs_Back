@@ -1,3 +1,4 @@
+const e = require('express')
 const express = require('express')
 const db = require(__dirname + '/../db_connect')
 const router = express.Router()
@@ -8,13 +9,27 @@ const extMap = {
   'image/png': '.png',
   'image/jpeg': '.jpg',
   'image/gif': '.gif',
-};
-
-const fileFilter = function(req, file, cb){
-  cb(null, !! extMap[file.mimetype])
 }
 
-const upload = multer({ dest: 'public/img/products/', fileFilter })
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, __dirname + '/../../public/img/products')
+  },
+  filename: function (req, file, cb) {
+    const ext = extMap[file.mimetype]
+    if (ext) {
+      cb(null, file.originalname)
+    } else {
+      cb(new Error('寫入檔案名稱失敗'))
+    }
+  },
+})
+
+const fileFilter = function (req, file, cb) {
+  cb(null, !!extMap[file.mimetype])
+}
+
+const upload = multer({ storage, fileFilter })
 
 async function getListData(req) {
   const output = {
@@ -51,7 +66,7 @@ async function getListData(req) {
         }
 
         // 處理頁碼按鈕
-        (function (page, totalPages, prevNum) {
+        ;(function (page, totalPages, prevNum) {
           let beginPage, endPage
           if (totalPages <= prevNum * 2 + 1) {
             beginPage = 1
@@ -118,7 +133,7 @@ async function getListData(req) {
         }
 
         // 處理頁碼按鈕
-        (function (page, totalPages, prevNum) {
+        ;(function (page, totalPages, prevNum) {
           let beginPage, endPage
           if (totalPages <= prevNum * 2 + 1) {
             beginPage = 1
@@ -185,7 +200,7 @@ async function getListData(req) {
         }
 
         // 處理頁碼按鈕
-        (function (page, totalPages, prevNum) {
+        ;(function (page, totalPages, prevNum) {
           let beginPage, endPage
           if (totalPages <= prevNum * 2 + 1) {
             beginPage = 1
@@ -249,7 +264,7 @@ async function getListData(req) {
         }
 
         // 處理頁碼按鈕
-        (function (page, totalPages, prevNum) {
+        ;(function (page, totalPages, prevNum) {
           let beginPage, endPage
           if (totalPages <= prevNum * 2 + 1) {
             beginPage = 1
@@ -303,39 +318,110 @@ router.get('/list', async (req, res) => {
 })
 
 //POST
-
-
-
-// router.post('/', upload.array("prodImg", 5), async(req,res)=>{
-
-// })
-
-const cpUpload = upload.fields([{ name: 'prodImg', maxCount: 5 }])
+const cpUpload = upload.fields([{ name: 'imgList', maxCount: 5 }])
 
 router.post('/', cpUpload, async function (req, res) {
-  const submitData = { ...req.body }
-  console.log('req',req.file)
-  console.log('submitData',submitData)
-  console.log('submitData',submitData.imgList)
+  console.log('req', req)
 
-  const sql = ""
-  const [result] = await db.query(sql,[submitData])
-  if (!result.insertId){
+  const submitData = { ...req.body }
+  // console.log('req',req)
+  // console.log('req.files.imgList',req.files.imgList)
+
+  //把所有圖片的filename寫入陣列再合併到submitData
+  const arr = []
+  req.files.imgList &&
+    req.files.imgList.map((item, index) => arr.push(item.filename))
+  submitData.image_path = arr.toString()
+  console.log('submitData', submitData)
+
+  //把submitData中部分值取出寫入products
+  const prodData = {
+    merchant_id: req.query.id,
+    title: submitData.title,
+    categories_id: submitData.category,
+    outline: submitData.outline,
+    image_path: submitData.image_path,
+    type: req.query.prodType,
+    launch_date: submitData.launchDate,
+    created_at: new Date(),
+  }
+  console.log('prodData', prodData)
+
+  const sqlInsertProd = 'INSERT INTO products SET ?'
+  const [prodResult] = await db.query(sqlInsertProd, prodData)
+
+  if (!prodResult.insertId) {
     return res.json({
-      error: 'Insert Failed',
+      error: 'Insert product Failed',
       success: false,
     })
   }
+
+  //把product insertId取出並寫入skus資料表
+  const prodInsertId = prodResult.insertId
+
+  //定義skusData
+  const skusData = {
+    product_id: prodInsertId,
+    price: Number(submitData.price.replace(/[^0-9.-]+/g,"")),
+    specification: '-',
+    sale_price: Number(submitData.salePrice.replace(/[^0-9.-]+/g,"")) || 0,
+    stocks: submitData.stock,
+  }
+
+  //判斷submitData中有多少個specification，將specification的值取出塞入一個陣列
+  const specArr = []
+  for (const key of Object.keys(submitData)) {
+    if (key.includes('specification')) specArr.push(submitData[key])
+  }
+
+  if (specArr.length === 0) {
+    console.log('skusData',skusData)
+    const sqlInsertSkus = 'INSERT INTO product_skus SET ?'
+    const [skusResult] = await db.query(sqlInsertSkus, skusData)
+
+    if (!skusResult.insertId) {
+      const sqlDelProd =
+        'DELETE A.* B.* FROM products A LEFT JOIN product_skus B ON A.id = B.product_id where A.id = ?'
+      const [result] = await db.query(sqlDelProd, prodInsertId)
+
+      return res.json({
+        error: 'Insert product skus Failed',
+        success: false,
+      })
+    }
+
+  } else {
+
+    //根據規格的數量，用for迴圈執行多次skus資料表的寫入
+    for (let i = 0; i < specArr.length; i++) {
+      skusData.specification = specArr[i]
+
+      const sqlInsertSkus = 'INSERT INTO product_skus SET ?'
+      const [skusResult] = await db.query(sqlInsertSkus, skusData)
+
+      if (!skusResult.insertId) {
+        const sqlDelProd =
+          'DELETE A.* B.* FROM products A LEFT JOIN product_skus B ON A.id = B.product_id where A.id = ?'
+        const [result] = await db.query(sqlDelProd, prodInsertId)
+
+        return res.json({
+          error: 'Insert product skus Failed',
+          success: false,
+        })
+      }
+    }
+  }
+
   res.json({
     body: submitData,
-    affectedRows: result.affectedRows,
-    insertId: result.insertId,
+    affectedRows: prodResult.affectedRows,
+    insertId: prodResult.insertId,
     success: true,
   })
 })
 
 //PUT
-
 //DELETE
 
 module.exports = router
