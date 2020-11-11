@@ -3,7 +3,18 @@ const db = require(__dirname + '/../db_connect')
 const router = express.Router()
 const moment = require('moment-timezone')
 const multer = require('multer')
-const upload = multer()
+
+const extMap = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/gif': '.gif',
+};
+
+const fileFilter = function(req, file, cb){
+  cb(null, !! extMap[file.mimetype])
+}
+
+const upload = multer({ dest: 'public/img/products/', fileFilter })
 
 async function getListData(req) {
   const output = {
@@ -292,6 +303,36 @@ router.get('/list', async (req, res) => {
 })
 
 //POST
+
+
+
+// router.post('/', upload.array("prodImg", 5), async(req,res)=>{
+
+// })
+
+const cpUpload = upload.fields([{ name: 'prodImg', maxCount: 5 }])
+
+router.post('/', cpUpload, async function (req, res) {
+  const submitData = { ...req.body }
+  console.log('req',req.file)
+  console.log('submitData',submitData)
+  console.log('submitData',submitData.imgList)
+
+  const sql = ""
+  const [result] = await db.query(sql,[submitData])
+  if (!result.insertId){
+    return res.json({
+      error: 'Insert Failed',
+      success: false,
+    })
+  }
+  res.json({
+    body: submitData,
+    affectedRows: result.affectedRows,
+    insertId: result.insertId,
+    success: true,
+  })
+})
 
 //PUT
 

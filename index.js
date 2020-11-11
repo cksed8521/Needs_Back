@@ -72,6 +72,8 @@ app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 app.use('/Template', require( __dirname + '/src/template/Template'));
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
+app.use("/get-categories-api", require(__dirname + "/src/backend-ms/categories"));
+
 
 
 
