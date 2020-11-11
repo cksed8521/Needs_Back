@@ -13,5 +13,14 @@ router.get("/", async (req, res) => {
   if (!results.length) return res.send("NO fund data");
   res.json(results);
 });
+router.get("/product", async (req, res) => {
+  const sql = "SELECT customer_wishlist.*, products.title, products.image_path FROM customer_wishlist LEFT JOIN products ON customer_wishlist.product_id = products.id WHERE `customer_id` = 2 ";
+  const [results] = await db.query(sql, [req.query.customer_id]);
+
+  //query為後端api給資料/params為前端網址列提供id訊息/   為form表單提供資料
+  if (!results.length) return res.send("NO fund data");
+  res.json(results);
+});
+
 
 module.exports = router;
