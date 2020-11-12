@@ -10,7 +10,7 @@ router.get("/" , async(req, res) => {
   switch(choice) {
       case 'lastest':
         // sort by lastest
-          const [productList] = await db.query("SELECT A.id, A.merchant_id, D.brand_name, A.title, A.categories_id, C.name as categories_name, A.outline, A.image_path ,A.e_points_usable, A.created_at, TEMPTBL.product_id, TEMPTBL.price, TEMPTBL.sale_price FROM products A                                                                                  LEFT JOIN (SELECT B.product_id, B.price, B.sale_price FROM product_skus B GROUP BY B.product_id) TEMPTBL ON TEMPTBL.product_id = A.id                                                                                               LEFT JOIN product_categories AS C on A.categories_id = C.id                                                      LEFT JOIN merchants AS D on A.merchant_id = D.id ORDER BY `A`.`created_at` DESC")
+          const [productList] = await db.query("SELECT A.id, A.merchant_id, D.brand_name, D.brand_en_name, A.title, A.categories_id, C.name as categories_name, A.outline, A.image_path ,A.e_points_usable, A.created_at, TEMPTBL.product_id, TEMPTBL.price, TEMPTBL.sale_price FROM products A                                                                                  LEFT JOIN (SELECT B.product_id, B.price, B.sale_price FROM product_skus B GROUP BY B.product_id) TEMPTBL ON TEMPTBL.product_id = A.id                                                                                               LEFT JOIN product_categories AS C on A.categories_id = C.id                                                      LEFT JOIN merchants AS D on A.merchant_id = D.id ORDER BY `A`.`created_at` DESC")
           
           productList.map((product)=>{
 
@@ -22,7 +22,7 @@ router.get("/" , async(req, res) => {
 
       case '-price':
         // sort by -price
-        const [lowPrice] = await db.query("SELECT A.id, A.merchant_id, D.brand_name, A.title, A.categories_id, C.name as categories_name, A.outline, A.image_path ,A.e_points_usable, A.created_at, TEMPTBL.product_id, TEMPTBL.price, TEMPTBL.sale_price FROM products A                                                                                  LEFT JOIN (SELECT B.product_id, B.price, B.sale_price FROM product_skus B GROUP BY B.product_id) TEMPTBL ON TEMPTBL.product_id = A.id                                                                                               LEFT JOIN product_categories AS C on A.categories_id = C.id                                                      LEFT JOIN merchants AS D on A.merchant_id = D.id ORDER BY `TEMPTBL`.`price` ASC")
+        const [lowPrice] = await db.query("SELECT A.id, A.merchant_id, D.brand_name, D.brand_en_name, A.title, A.categories_id, C.name as categories_name, A.outline, A.image_path ,A.e_points_usable, A.created_at, TEMPTBL.product_id, TEMPTBL.price, TEMPTBL.sale_price FROM products A                                                                                  LEFT JOIN (SELECT B.product_id, B.price, B.sale_price FROM product_skus B GROUP BY B.product_id) TEMPTBL ON TEMPTBL.product_id = A.id                                                                                               LEFT JOIN product_categories AS C on A.categories_id = C.id                                                      LEFT JOIN merchants AS D on A.merchant_id = D.id ORDER BY `TEMPTBL`.`price` ASC")
           
         lowPrice.map((product)=>{
 
@@ -34,7 +34,7 @@ router.get("/" , async(req, res) => {
 
       case 'price':
         // sort by price
-        const [hightPrice] = await db.query("SELECT A.id, A.merchant_id, D.brand_name, A.title, A.categories_id, C.name as categories_name, A.outline, A.image_path ,A.e_points_usable, A.created_at, TEMPTBL.product_id, TEMPTBL.price, TEMPTBL.sale_price FROM products A                                                                                  LEFT JOIN (SELECT B.product_id, B.price, B.sale_price FROM product_skus B GROUP BY B.product_id) TEMPTBL ON TEMPTBL.product_id = A.id                                                                                               LEFT JOIN product_categories AS C on A.categories_id = C.id                                                      LEFT JOIN merchants AS D on A.merchant_id = D.id ORDER BY `TEMPTBL`.`price` DESC")
+        const [hightPrice] = await db.query("SELECT A.id, A.merchant_id, D.brand_name, D.brand_en_name, A.title, A.categories_id, C.name as categories_name, A.outline, A.image_path ,A.e_points_usable, A.created_at, TEMPTBL.product_id, TEMPTBL.price, TEMPTBL.sale_price FROM products A                                                                                  LEFT JOIN (SELECT B.product_id, B.price, B.sale_price FROM product_skus B GROUP BY B.product_id) TEMPTBL ON TEMPTBL.product_id = A.id                                                                                               LEFT JOIN product_categories AS C on A.categories_id = C.id                                                      LEFT JOIN merchants AS D on A.merchant_id = D.id ORDER BY `TEMPTBL`.`price` DESC")
           
         hightPrice.map((product)=>{
 
@@ -46,7 +46,7 @@ router.get("/" , async(req, res) => {
 
       default:
          // sort by id
-         const [ById] = await db.query("SELECT A.id, A.merchant_id, D.brand_name, A.title, A.categories_id, C.name as categories_name, A.outline, A.image_path ,A.e_points_usable, A.created_at, TEMPTBL.product_id, TEMPTBL.price, TEMPTBL.sale_price FROM products A LEFT JOIN (SELECT B.product_id, B.price, B.sale_price FROM product_skus B GROUP BY B.product_id) TEMPTBL ON TEMPTBL.product_id = A.id LEFT JOIN product_categories AS C on A.categories_id = C.id LEFT JOIN merchants AS D on A.merchant_id = D.id ORDER BY `A`.`id` ASC")
+         const [ById] = await db.query("SELECT A.id, A.merchant_id, D.brand_name, D.brand_en_name, A.title, A.categories_id, C.name as categories_name, A.outline, A.image_path ,A.e_points_usable, A.created_at, TEMPTBL.product_id, TEMPTBL.price, TEMPTBL.sale_price FROM products A LEFT JOIN (SELECT B.product_id, B.price, B.sale_price FROM product_skus B GROUP BY B.product_id) TEMPTBL ON TEMPTBL.product_id = A.id LEFT JOIN product_categories AS C on A.categories_id = C.id LEFT JOIN merchants AS D on A.merchant_id = D.id ORDER BY `A`.`id` ASC")
           
          ById.map((product)=>{
  

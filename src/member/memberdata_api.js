@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
     const sql = "SELECT * FROM `customers` WHERE id=?"
     const [results] = await db.query(sql, [req.query.id])
-console.log('res',res)
+// console.log('res',res)
     
     if(! results.length) return res.send('NO fund data')
 
@@ -26,13 +26,13 @@ console.log('res',res)
 
   router.post("/", async (req, res) => {
     const data = {...req}
-    // console.log('data.body',data.body)
+    console.log('data.body',data.body)
     const sql = "UPDATE `customers` SET ? WHERE `customers`.`id` = ?;"
 
     const [{affectedRows, changedRows}] = await db.query(sql, [ data.body, req.query.id ]);
     // {"fieldCount":0,"affectedRows":1,"insertId":0,"info":"Rows matched: 1  Changed: 0  Warnings: 0","serverStatus":2,"warningStatus":0,"changedRows":0}
-    console.log('affectedRows',affectedRows)
-    console.log('changedRows',changedRows)
+    // console.log('affectedRows',affectedRows)
+    // console.log('changedRows',changedRows)
     res.json({
         success: !!changedRows,
         affectedRows,
@@ -43,7 +43,7 @@ console.log('res',res)
   });
 
 router.post("/upload/:id", upload.single("avatar") , async(req, res) =>{
-res.json(req.file)
+  // console.log(req.params.id)
   const sql =  "UPDATE `customers` SET `avatar` = ? WHERE `id` = ?"
   console.log(2)
   const [{affectedRows , insertId}] = await db.query(sql , [req.file.filename,req.params.id])
