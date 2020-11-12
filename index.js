@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000
 const fs = require('fs')
 const {v4: uuidv4} = require('uuid')
 const multer = require("multer")
-const upload = multer({ dest: __dirname + "/tmp_uploads" })
+const upload = multer({ dest: __dirname + "/tmp_uploadsc" })
 const axios = require('axios')
 const moment = require('moment')
 
@@ -43,36 +43,21 @@ app.use(router)
 app.use(cors())
 
 
-//測試資料庫連線
-app.get("/try-db", (req, res) => {
-  db.query("SELECT * FROM `customers` WHERE id=?").then(([result]) => {
-    res.json(result);
-  })
-})
-
-
-//測試圖片上傳
-app.post("/try-uploads", upload.single("img"), (req, res) => {
-  console.log(1);
-  console.log(req.file);
-  console.log(2);
-  res.json(req.file);
-});
-
-
 //引用自己的route資料夾
 app.use(express.static(__dirname + "/public"));
 app.use('/login-api', require( __dirname + '/src/login/login_api'));
 app.use('/signup-api', require( __dirname + '/src/login/signup_api'));
 app.use('/bk-products-api', require(__dirname + '/src/backend-ms/products'));
 app.use('/bk-contracts-api', require(__dirname + '/src/backend-ms/contracts'));
+app.use('/bk-orders-api', require(__dirname + '/src/backend-ms/orders'));
 app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
+app.use('/Template', require( __dirname + '/src/template/Template'));
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
-app.use("/comment", require(__dirname + "/src/member/memcomment_api"));
-app.use("/like", require(__dirname + "/src/member/memlike_api"));
-app.use("/inform", require(__dirname + "/src/member/meminformation_api"));
+app.use("/get-categories-api", require(__dirname + "/src/backend-ms/categories"));
+
+
 
 
 //socketIo
@@ -88,9 +73,6 @@ io.on("connection", (socket) => {
     // const chanel_sql = "INSERT INTO `channel_Room`(`customer_name`, `channelRoom`) VALUES (?,?)"
     // const [channelroom] = await db.query(chanel_sql , [name, room])
     // res.json(channelroom)
-
-    //
-
     socket.join(user.room);
 
     socket.emit("message", {
