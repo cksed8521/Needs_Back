@@ -109,8 +109,14 @@ router.get("/adsinprogressforctr", (req, res) => {
 });
 
 router.post("/addnewads", (req, res) => {
-  db.query("INSERT INTO `ads_new_ads`(`sid`, `merchant_id`, `title`, `budget`, `bid`, `start_date`, `end_date`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6],[value-7])").then(([result]) => {
-    res.json(result); 
+  const title = req.body.title
+  const budget = req.body.budget
+  const bid = req.body.bid
+  const start_date = req.body.start_date
+  const end_date = req.body.end_date
+
+  db.query("INSERT INTO `ads_new_ads`(`title`, `budget`, `bid`, `start_date`, `end_date`) VALUES (?, ? ,?, ? ,? )", [title, budget, bid, start_date, end_date]).then(([result]) => {
+    console.log(result); 
   });
 });
 
