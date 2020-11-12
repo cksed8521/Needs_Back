@@ -69,7 +69,7 @@ app.use('/bk-contracts-api', require(__dirname + '/src/backend-ms/contracts'));
 app.use('/products', require('./src/Product/routes'));
 app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
-app.use('/Template', require( __dirname + '/src/Template/Template'));
+app.use('/template', require( __dirname + '/src/Template/Template'));
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
 app.post("/member", require(__dirname + "/src/member/memberdata_api"));
 // app.use("/avatar", require(__dirname + "/src/member/avatar_api"));
