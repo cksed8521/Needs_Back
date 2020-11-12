@@ -157,7 +157,6 @@ async function getListData(req) {
 
 router.get('/list', async (req, res) => {
   const output = await getListData(req)
-  console.log('output', output)
   res.json(output)
 })
 //POST

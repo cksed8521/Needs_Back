@@ -66,7 +66,7 @@ async function getListData(req) {
         }
 
         // 處理頁碼按鈕
-        ;(function (page, totalPages, prevNum) {
+        (function (page, totalPages, prevNum) {
           let beginPage, endPage
           if (totalPages <= prevNum * 2 + 1) {
             beginPage = 1
@@ -87,15 +87,21 @@ async function getListData(req) {
 
         let sqlGetMerchantData = ` SELECT A.id, A.title, C.name as categories_name, A.outline, A.description, 
                                           A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
-                                          TEMPTBL.sale_price, TEMPTBL.stocks
+                                          TEMPTBL.sale_price, TEMPTBL.stocks, TEMPQUA.sold_quantity
                                           FROM products A
-                                          
-                                          LEFT JOIN (SELECT B.product_id, B.price, B.sale_price, B.stocks,
+                                          LEFT JOIN (SELECT B.id, B.product_id, B.price, B.sale_price, B.stocks,
                                                 GROUP_CONCAT(B.specification) AS specification
-                                                FROM product_skus B
+                                                FROM product_skus B 
                                                 GROUP BY B.product_id) TEMPTBL 
                                                 ON TEMPTBL.product_id = A.id
+                                          LEFT JOIN(SELECT A.id AS product_id, SUM(D.quantity) AS sold_quantity 
+                                          FROM order_products D
+                                          LEFT JOIN product_skus B ON D.product_sku_id = B.id
+                                          LEFT JOIN products A ON B.product_id = A.id
+                                          GROUP BY A.id) TEMPQUA
+                                          ON A.id = TEMPQUA.product_id         
                                     LEFT JOIN product_categories AS C ON A.categories_id = C.id 
+                                    LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id 
                                     WHERE A.merchant_id = ? AND A.launch_date < now()
                                     ORDER BY id DESC LIMIT ${
                                       (output.page - 1) * output.perPage
@@ -133,7 +139,7 @@ async function getListData(req) {
         }
 
         // 處理頁碼按鈕
-        ;(function (page, totalPages, prevNum) {
+        (function (page, totalPages, prevNum) {
           let beginPage, endPage
           if (totalPages <= prevNum * 2 + 1) {
             beginPage = 1
@@ -154,15 +160,21 @@ async function getListData(req) {
 
         let sqlGetMerchantData = ` SELECT A.id, A.title, C.name as categories_name, A.outline, A.description, 
                                           A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
-                                          TEMPTBL.sale_price, TEMPTBL.stocks
+                                          TEMPTBL.sale_price, TEMPTBL.stocks, TEMPQUA.sold_quantity
                                           FROM products A
-                                          
-                                          RIGHT JOIN (SELECT B.product_id, B.price, B.sale_price, B.stocks,
+                                          LEFT JOIN (SELECT B.id, B.product_id, B.price, B.sale_price, B.stocks,
                                                 GROUP_CONCAT(B.specification) AS specification
-                                                FROM product_skus B WHERE B.stocks = 0
+                                                FROM product_skus B 
                                                 GROUP BY B.product_id) TEMPTBL 
                                                 ON TEMPTBL.product_id = A.id
+                                          LEFT JOIN(SELECT A.id AS product_id, SUM(D.quantity) AS sold_quantity 
+                                          FROM order_products D
+                                          LEFT JOIN product_skus B ON D.product_sku_id = B.id
+                                          LEFT JOIN products A ON B.product_id = A.id
+                                          GROUP BY A.id) TEMPQUA
+                                          ON A.id = TEMPQUA.product_id         
                                     LEFT JOIN product_categories AS C ON A.categories_id = C.id 
+                                    LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id 
                                     WHERE A.merchant_id = ?
                                     ORDER BY id DESC LIMIT ${
                                       (output.page - 1) * output.perPage
@@ -200,7 +212,7 @@ async function getListData(req) {
         }
 
         // 處理頁碼按鈕
-        ;(function (page, totalPages, prevNum) {
+        (function (page, totalPages, prevNum) {
           let beginPage, endPage
           if (totalPages <= prevNum * 2 + 1) {
             beginPage = 1
@@ -221,15 +233,21 @@ async function getListData(req) {
 
         let sqlGetMerchantData = ` SELECT A.id, A.title, C.name as categories_name, A.outline, A.description, 
                                           A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
-                                          TEMPTBL.sale_price, TEMPTBL.stocks
+                                          TEMPTBL.sale_price, TEMPTBL.stocks, TEMPQUA.sold_quantity
                                           FROM products A
-                                          
-                                          LEFT JOIN (SELECT B.product_id, B.price, B.sale_price, B.stocks,
+                                          LEFT JOIN (SELECT B.id, B.product_id, B.price, B.sale_price, B.stocks,
                                                 GROUP_CONCAT(B.specification) AS specification
-                                                FROM product_skus B
+                                                FROM product_skus B 
                                                 GROUP BY B.product_id) TEMPTBL 
                                                 ON TEMPTBL.product_id = A.id
+                                          LEFT JOIN(SELECT A.id AS product_id, SUM(D.quantity) AS sold_quantity 
+                                          FROM order_products D
+                                          LEFT JOIN product_skus B ON D.product_sku_id = B.id
+                                          LEFT JOIN products A ON B.product_id = A.id
+                                          GROUP BY A.id) TEMPQUA
+                                          ON A.id = TEMPQUA.product_id         
                                     LEFT JOIN product_categories AS C ON A.categories_id = C.id 
+                                    LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id
                                     WHERE A.merchant_id = ? AND A.launch_date > NOW()
                                     ORDER BY id DESC LIMIT ${
                                       (output.page - 1) * output.perPage
@@ -264,7 +282,7 @@ async function getListData(req) {
         }
 
         // 處理頁碼按鈕
-        ;(function (page, totalPages, prevNum) {
+        (function (page, totalPages, prevNum) {
           let beginPage, endPage
           if (totalPages <= prevNum * 2 + 1) {
             beginPage = 1
@@ -284,20 +302,24 @@ async function getListData(req) {
         })(page, output.totalPages, 3)
 
         let sqlGetMerchantData = ` SELECT A.id, A.title, C.name as categories_name, A.outline, A.description, 
-                                          A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
-                                          TEMPTBL.sale_price, TEMPTBL.stocks
-                                          FROM products A
-                                          
-                                          LEFT JOIN (SELECT B.product_id, B.price, B.sale_price, B.stocks,
-                                                GROUP_CONCAT(B.specification) AS specification
-                                                FROM product_skus B 
-                                                GROUP BY B.product_id) TEMPTBL 
-                                                ON TEMPTBL.product_id = A.id
-                                    LEFT JOIN product_categories AS C ON A.categories_id = C.id 
-                                    WHERE A.merchant_id = ?
-                                    ORDER BY id DESC LIMIT ${
-                                      (output.page - 1) * output.perPage
-                                    }, ${output.perPage}`
+                                    A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
+                                    TEMPTBL.sale_price, TEMPTBL.stocks, TEMPQUA.sold_quantity
+                                    FROM products A
+                                    LEFT JOIN (SELECT B.id, B.product_id, B.price, B.sale_price, B.stocks,
+                                          GROUP_CONCAT(B.specification) AS specification
+                                          FROM product_skus B 
+                                          GROUP BY B.product_id) TEMPTBL 
+                                          ON TEMPTBL.product_id = A.id
+                                    LEFT JOIN(SELECT A.id AS product_id, SUM(D.quantity) AS sold_quantity 
+                                    FROM order_products D
+                                    LEFT JOIN product_skus B ON D.product_sku_id = B.id
+                                    LEFT JOIN products A ON B.product_id = A.id
+                                    GROUP BY A.id) TEMPQUA
+                                    ON A.id = TEMPQUA.product_id         
+                              LEFT JOIN product_categories AS C ON A.categories_id = C.id 
+                              LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id
+                              WHERE A.merchant_id = ?
+                              ORDER BY id DESC LIMIT ${(output.page - 1) * output.perPage}, ${output.perPage}`
 
         const [results] = await db.query(sqlGetMerchantData, [req.query.id])
         results.forEach((el) => {
@@ -323,7 +345,7 @@ const cpUpload = upload.fields([{ name: 'imgList', maxCount: 5 }])
 router.post('/', cpUpload, async function (req, res) {
   console.log('req', req)
 
-  const submitData = { ...req.body }
+  const submitData = { ...JSON.parse(req.body.formData) }
   // console.log('req',req)
   // console.log('req.files.imgList',req.files.imgList)
 
