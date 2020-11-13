@@ -90,12 +90,20 @@ console.log("results1", results1);
 
 //editpage-info-upload
 router.post("/editpage/changeData", upload.none(), async (req, res) => {
-  console.log("req", req);
+  console.log("req", req.body);
+  const brand_story = req.body[0]
+  const bg_color=req.body[1]
+  const main_productId= req.body[2]
+  const main_activitiesId= req.body[3]
+  console.log("id", req.query.id);
+  console.log(brand_story)
+  console.log(bg_color)
+
   let sql =
     // "UPDATE `brand_info` SET `bg_color` = ? , `main_productId` = ?, `main_activitiesId` = ?, `brand_story` = ? WHERE `brand_info`.`merchant_id` = ?;"
-    "UPDATE `brand_info` SET `brand_story` = ?, `bg_color` = ?, `main_productId` = ?, `main_activitiesId` = ? WHERE `brand_info`.`id` = 12;"
-  const [results2] = await db.query(sql, [req.body.brand_story,req.body.bg_color , req.body.main_productId, req.body.main_activitiesId, req.query.id]);
-  console.log("results2", results2);
+    "UPDATE `brand_info` SET `brand_story` = ?, `bg_color` = ?, `main_productId` = ?, `main_activitiesId` = ? WHERE `brand_info`.`merchant_id` = ?;"
+  const [results2] = await db.query(sql, [brand_story, bg_color, main_productId, main_activitiesId, req.query.id]);
+  // console.log("results2", results2);
   if (!results2.affectedRows) {
     return res.json("error");
 }
@@ -148,54 +156,54 @@ router.get("/merchant_product", async(req, res) => {
 
 
 
-async function getMerchantData(id, exclude) {
-  const merchant_sql =
-    "SELECT * FROM merchants LEFT JOIN brand_info ON merchants.id = brand_info.merchant_id WHERE merchants.id=?";
-  const [[merchant]] = await db.query(merchant_sql, [id]);//商家所有資訊
+// async function getMerchantData(id, exclude) {
+//   const merchant_sql =
+//     "SELECT * FROM merchants LEFT JOIN brand_info ON merchants.id = brand_info.merchant_id WHERE merchants.id=?";
+//   const [[merchant]] = await db.query(merchant_sql, [id]);//商家所有資訊
 
-  const products_sql =
-    "SELECT id,title,image_path FROM products WHERE merchant_id=? and id!=? LIMIT 6";//商家商品
-  const [products] = await db.query(products_sql, [id, exclude]);
+//   const products_sql =
+//     "SELECT id,title,image_path FROM products WHERE merchant_id=? and id!=? LIMIT 6";//商家商品
+//   const [products] = await db.query(products_sql, [id, exclude]);
 
-  merchant.products = products.map((product) => {
-    product.image_path = product.image_path.trim().split(",")[0];
-    return product;
-  });
+//   merchant.products = products.map((product) => {
+//     product.image_path = product.image_path.trim().split(",")[0];
+//     return product;
+//   });
 
-  const reformattedArray = products.map((item) => Object.values(item)[0]);
-  const placeholder = Array(reformattedArray.length).fill("?").join();
+//   const reformattedArray = products.map((item) => Object.values(item)[0]);
+//   const placeholder = Array(reformattedArray.length).fill("?").join();
 
-  const skus_sql =
-    "SELECT * FROM product_skus WHERE product_id IN (" + placeholder + ")";
-  const [skus] = await db.query(skus_sql, reformattedArray);
+//   const skus_sql =
+//     "SELECT * FROM product_skus WHERE product_id IN (" + placeholder + ")";
+//   const [skus] = await db.query(skus_sql, reformattedArray);
 
-  products.map(function (product) {
-    sku = skus.find((s) => s.product_id == product.id);
-    return (product.price = sku.price), (product.sale_price = sku.sale_price);
-  });
+//   products.map(function (product) {
+//     sku = skus.find((s) => s.product_id == product.id);
+//     return (product.price = sku.price), (product.sale_price = sku.sale_price);
+//   });
 
-  let since = new Date(merchant.created_at);
-  let now = new Date();
-  let months = (since.getFullYear() - now.getFullYear()) * 12;
-  months -= since.getMonth();
-  months += now.getMonth();
-  merchant.created_months = months;
+//   let since = new Date(merchant.created_at);
+//   let now = new Date();
+//   let months = (since.getFullYear() - now.getFullYear()) * 12;
+//   months -= since.getMonth();
+//   months += now.getMonth();
+//   merchant.created_months = months;
 
-  const product_count_sql =
-    "SELECT COUNT(1) as count FROM products WHERE merchant_id = ?";
-  const [[row]] = await db.query(product_count_sql, [id]);//商品數
-  merchant.product_amount = row.count;
+//   const product_count_sql =
+//     "SELECT COUNT(1) as count FROM products WHERE merchant_id = ?";
+//   const [[row]] = await db.query(product_count_sql, [id]);//商品數
+//   merchant.product_amount = row.count;
 
-  merchant.review = 4.8;
-  merchant.review_amount = 3600;
-  merchant.fans = 21;
+//   merchant.review = 4.8;
+//   merchant.review_amount = 3600;
+//   merchant.fans = 21;
 
-  return merchant;
-}
+//   return merchant;
+// }
 
-router.get("/edit/merchant/:id", async (req, res) => {
-  res.json(await getMerchantData(req.params.id, req.query.exclude));
-});
+// router.get("/edit/merchant/:id", async (req, res) => {
+//   res.json(await getMerchantData(req.params.id, req.query.exclude));
+// });
 
 
 
