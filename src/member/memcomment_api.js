@@ -6,7 +6,9 @@ const router = express.Router();
 
 //
 router.get("/", async (req, res) => {
-  const sql = "SELECT order_evaluations.*, merchants.brand_name, brand_info.index_img FROM order_evaluations LEFT JOIN merchants ON order_evaluations.merchant_id = merchants.id LEFT JOIN brand_info ON order_evaluations.merchant_id = brand_info.merchant_id WHERE `customer_id` = ? AND order_evaluations.buyer_message IS NOT null";
+  console.log(1)
+  const sql = "SELECT order_evaluations.*, products.title,products.image_path,merchants.brand_name FROM order_evaluations LEFT JOIN products ON order_evaluations.product_id = products.id LEFT JOIN merchants ON order_evaluations.merchant_id = merchants.id WHERE customer_id = ? AND order_evaluations.buyer_message IS NOT null";
+  
   // console.log('req',req)
   //query為後端api給資料/params為前端網址列提供id訊息/   為form表單提供資料
  
