@@ -43,23 +43,6 @@ app.use(router)
 app.use(cors())
 
 
-//測試資料庫連線
-app.get("/try-db", (req, res) => {
-  db.query("SELECT * FROM `products` WHERE 1").then(([result]) => {
-    res.json(result);
-  })
-})
-
-
-//測試圖片上傳
-app.post("/try-uploads", upload.single("img"), (req, res) => {
-  console.log(1);
-  console.log(req.file);
-  console.log(2);
-  res.json(req.file);
-});
-
-
 //引用自己的route資料夾
 app.use(express.static(__dirname + "/public"));
 app.use('/login-api', require( __dirname + '/src/login/login_api'));
@@ -79,20 +62,25 @@ app.use("/get-categories-api", require(__dirname + "/src/backend-ms/categories")
 
 //socketIo
 io.on("connection", (socket) => {
-  socket.on("join", ({ name, room }, callback) => {
+  socket.on("join",  ({ name, room }, callback) => {
     const { error, user } = addUser({ id: socket.id, name, room });
-
+    console.log(name)
+    console.log(room)
     if (error) return callback(error);
 
+    // Recording user and merchant channelroom  
+
+    // const chanel_sql = "INSERT INTO `channel_Room`(`customer_name`, `channelRoom`) VALUES (?,?)"
+    // const [channelroom] = await db.query(chanel_sql , [name, room])
+    // res.json(channelroom)
     socket.join(user.room);
 
     socket.emit("message", {
-      user: "admin",
-      text: `${user.name}, welcome to the room ${user.room}`,
+      text: `你好 ${user.name}, 請問找什麼呢 ?`,
     });
     socket.broadcast
       .to(user.room)
-      .emit("message", { user: "admin", text: `${user.name} has joined` });
+      .emit("message", {text: `${user.name} 已上線` });
 
     io.to(user.room).emit("roomData", {
       room: user.room,
@@ -105,7 +93,11 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", (message, callback) => {
     const user = getUser(socket.id);
 
-    io.to(user.room).emit("message", { user: user.name, text: message });
+    io.to(user.room).emit("message", { user: user.name, text: message, time:moment().format('h:mm a') });
+
+    // const chanel_sql = "INSERT INTO `channel_message`(`customer_name`, `message`,`timestamp`) VALUES (?,?)"
+    // const [channelroom] = await db.query(chanel_sql , [name, room])
+    // res.json(channelroom)
 
     callback();
   });
@@ -115,8 +107,7 @@ io.on("connection", (socket) => {
 
     if (user) {
       io.to(user.room).emit("message", {
-        user: "admin",
-        text: `${user.name} has left. `,
+        text: `${user.name} 已下線. `,
       });
       io.to(user.room).emit("roomData", {
         room: user.room,
