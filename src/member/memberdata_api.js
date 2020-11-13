@@ -1,50 +1,61 @@
 const express = require("express");
-
+const moment = require('moment-timezone')
 const db = require(__dirname + "/../db_connect");
-
+const upload = require(__dirname + '/upload-avatar-module');
 const router = express.Router();
 
 //
 router.get("/", async (req, res) => {
     const sql = "SELECT * FROM `customers` WHERE id=?"
     const [results] = await db.query(sql, [req.query.id])
-//console.log req-->(req.query.id)query為後端api給資料/params為前端網址列提供id訊息/   為form表單提供資料
+// console.log('res',res)
+    
     if(! results.length) return res.send('NO fund data')
+
+
+    results.forEach(el=>{
+        el.birthday = moment(el.birthday).format('YYYY-MM-DD');
+        el.creat_date = moment(el.creat_date).format('YYYY-MM-DD');
+    });
     res.json(results)
+
+//console.log req-->(req.query.id)query為後端api給資料/params為前端網址列提供id訊息/   為form表單提供資料
+    
   });
 
-/* RESTful API
-    列表
-    /api/ GET
 
-    新增
-    /api/ POST
+  router.post("/", async (req, res) => {
+    const data = {...req}
+    console.log('data.body',data.body)
+    const sql = "UPDATE `customers` SET ? WHERE `customers`.`id` = ?;"
 
-    呈現單筆
-    /api/:sid GET
+    const [{affectedRows, changedRows}] = await db.query(sql, [ data.body, req.query.id ]);
+    // {"fieldCount":0,"affectedRows":1,"insertId":0,"info":"Rows matched: 1  Changed: 0  Warnings: 0","serverStatus":2,"warningStatus":0,"changedRows":0}
+    // console.log('affectedRows',affectedRows)
+    // console.log('changedRows',changedRows)
+    res.json({
+        success: !!changedRows,
+        affectedRows,
+        changedRows,
 
-    修改單筆
-    /api/:sid PUT
+    });
+   
+  });
 
-    刪除單筆
-    /api/:sid DELETE
-*/
+router.post("/upload", upload.single("avatar") , async(req, res) =>{
+  // console.log(req.params.id)
+  console.log(req)
+  const sql =  "UPDATE `customers` SET `avatar` = ? WHERE `id` = ?"
+  console.log(2)
+  const [{affectedRows , insertId}] = await db.query(sql , [req.file.filename,req.query.id])
+  console.log(3)
+  res.json({
+    success: !!affectedRows,
+    affectedRows,
+    insertId,
+  })
+})
 
-
-
-/*
-    列表  /list
-        列表呈現 GET
-
-    新增  /add
-        表單呈現 GET, 接收資料 POST
-
-    修改  /edit/:sid
-        修改的表單呈現 GET, 接收資料 POST
-
-    修改  /del/:sid
-        POST
-*/
 
 
 module.exports = router;

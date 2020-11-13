@@ -1,9 +1,35 @@
+const e = require('express')
 const express = require('express')
 const db = require(__dirname + '/../db_connect')
 const router = express.Router()
 const moment = require('moment-timezone')
 const multer = require('multer')
-const upload = multer()
+
+const extMap = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/gif': '.gif',
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, __dirname + '/../../public/img/products')
+  },
+  filename: function (req, file, cb) {
+    const ext = extMap[file.mimetype]
+    if (ext) {
+      cb(null, file.originalname)
+    } else {
+      cb(new Error('寫入檔案名稱失敗'))
+    }
+  },
+})
+
+const fileFilter = function (req, file, cb) {
+  cb(null, !!extMap[file.mimetype])
+}
+
+const upload = multer({ storage, fileFilter })
 
 async function getListData(req) {
   const output = {
@@ -61,15 +87,21 @@ async function getListData(req) {
 
         let sqlGetMerchantData = ` SELECT A.id, A.title, C.name as categories_name, A.outline, A.description, 
                                           A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
-                                          TEMPTBL.sale_price, TEMPTBL.stocks
+                                          TEMPTBL.sale_price, TEMPTBL.stocks, TEMPQUA.sold_quantity
                                           FROM products A
-                                          
-                                          LEFT JOIN (SELECT B.product_id, B.price, B.sale_price, B.stocks,
+                                          LEFT JOIN (SELECT B.id, B.product_id, B.price, B.sale_price, B.stocks,
                                                 GROUP_CONCAT(B.specification) AS specification
-                                                FROM product_skus B
+                                                FROM product_skus B 
                                                 GROUP BY B.product_id) TEMPTBL 
                                                 ON TEMPTBL.product_id = A.id
+                                          LEFT JOIN(SELECT A.id AS product_id, SUM(D.quantity) AS sold_quantity 
+                                          FROM order_products D
+                                          LEFT JOIN product_skus B ON D.product_sku_id = B.id
+                                          LEFT JOIN products A ON B.product_id = A.id
+                                          GROUP BY A.id) TEMPQUA
+                                          ON A.id = TEMPQUA.product_id         
                                     LEFT JOIN product_categories AS C ON A.categories_id = C.id 
+                                    LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id 
                                     WHERE A.merchant_id = ? AND A.launch_date < now()
                                     ORDER BY id DESC LIMIT ${
                                       (output.page - 1) * output.perPage
@@ -128,15 +160,21 @@ async function getListData(req) {
 
         let sqlGetMerchantData = ` SELECT A.id, A.title, C.name as categories_name, A.outline, A.description, 
                                           A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
-                                          TEMPTBL.sale_price, TEMPTBL.stocks
+                                          TEMPTBL.sale_price, TEMPTBL.stocks, TEMPQUA.sold_quantity
                                           FROM products A
-                                          
-                                          RIGHT JOIN (SELECT B.product_id, B.price, B.sale_price, B.stocks,
+                                          LEFT JOIN (SELECT B.id, B.product_id, B.price, B.sale_price, B.stocks,
                                                 GROUP_CONCAT(B.specification) AS specification
-                                                FROM product_skus B WHERE B.stocks = 0
+                                                FROM product_skus B 
                                                 GROUP BY B.product_id) TEMPTBL 
                                                 ON TEMPTBL.product_id = A.id
+                                          LEFT JOIN(SELECT A.id AS product_id, SUM(D.quantity) AS sold_quantity 
+                                          FROM order_products D
+                                          LEFT JOIN product_skus B ON D.product_sku_id = B.id
+                                          LEFT JOIN products A ON B.product_id = A.id
+                                          GROUP BY A.id) TEMPQUA
+                                          ON A.id = TEMPQUA.product_id         
                                     LEFT JOIN product_categories AS C ON A.categories_id = C.id 
+                                    LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id 
                                     WHERE A.merchant_id = ?
                                     ORDER BY id DESC LIMIT ${
                                       (output.page - 1) * output.perPage
@@ -195,15 +233,21 @@ async function getListData(req) {
 
         let sqlGetMerchantData = ` SELECT A.id, A.title, C.name as categories_name, A.outline, A.description, 
                                           A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
-                                          TEMPTBL.sale_price, TEMPTBL.stocks
+                                          TEMPTBL.sale_price, TEMPTBL.stocks, TEMPQUA.sold_quantity
                                           FROM products A
-                                          
-                                          LEFT JOIN (SELECT B.product_id, B.price, B.sale_price, B.stocks,
+                                          LEFT JOIN (SELECT B.id, B.product_id, B.price, B.sale_price, B.stocks,
                                                 GROUP_CONCAT(B.specification) AS specification
-                                                FROM product_skus B
+                                                FROM product_skus B 
                                                 GROUP BY B.product_id) TEMPTBL 
                                                 ON TEMPTBL.product_id = A.id
+                                          LEFT JOIN(SELECT A.id AS product_id, SUM(D.quantity) AS sold_quantity 
+                                          FROM order_products D
+                                          LEFT JOIN product_skus B ON D.product_sku_id = B.id
+                                          LEFT JOIN products A ON B.product_id = A.id
+                                          GROUP BY A.id) TEMPQUA
+                                          ON A.id = TEMPQUA.product_id         
                                     LEFT JOIN product_categories AS C ON A.categories_id = C.id 
+                                    LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id
                                     WHERE A.merchant_id = ? AND A.launch_date > NOW()
                                     ORDER BY id DESC LIMIT ${
                                       (output.page - 1) * output.perPage
@@ -258,20 +302,24 @@ async function getListData(req) {
         })(page, output.totalPages, 3)
 
         let sqlGetMerchantData = ` SELECT A.id, A.title, C.name as categories_name, A.outline, A.description, 
-                                          A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
-                                          TEMPTBL.sale_price, TEMPTBL.stocks
-                                          FROM products A
-                                          
-                                          LEFT JOIN (SELECT B.product_id, B.price, B.sale_price, B.stocks,
-                                                GROUP_CONCAT(B.specification) AS specification
-                                                FROM product_skus B 
-                                                GROUP BY B.product_id) TEMPTBL 
-                                                ON TEMPTBL.product_id = A.id
-                                    LEFT JOIN product_categories AS C ON A.categories_id = C.id 
-                                    WHERE A.merchant_id = ?
-                                    ORDER BY id DESC LIMIT ${
-                                      (output.page - 1) * output.perPage
-                                    }, ${output.perPage}`
+                                    A.launch_date, A.image_path, TEMPTBL.specification, TEMPTBL.price, 
+                                    TEMPTBL.sale_price, TEMPTBL.stocks, TEMPQUA.sold_quantity
+                                    FROM products A
+                                    LEFT JOIN (SELECT B.id, B.product_id, B.price, B.sale_price, B.stocks,
+                                          GROUP_CONCAT(B.specification) AS specification
+                                          FROM product_skus B 
+                                          GROUP BY B.product_id) TEMPTBL 
+                                          ON TEMPTBL.product_id = A.id
+                                    LEFT JOIN(SELECT A.id AS product_id, SUM(D.quantity) AS sold_quantity 
+                                    FROM order_products D
+                                    LEFT JOIN product_skus B ON D.product_sku_id = B.id
+                                    LEFT JOIN products A ON B.product_id = A.id
+                                    GROUP BY A.id) TEMPQUA
+                                    ON A.id = TEMPQUA.product_id         
+                              LEFT JOIN product_categories AS C ON A.categories_id = C.id 
+                              LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id
+                              WHERE A.merchant_id = ?
+                              ORDER BY id DESC LIMIT ${(output.page - 1) * output.perPage}, ${output.perPage}`
 
         const [results] = await db.query(sqlGetMerchantData, [req.query.id])
         results.forEach((el) => {
@@ -292,9 +340,110 @@ router.get('/list', async (req, res) => {
 })
 
 //POST
+const cpUpload = upload.fields([{ name: 'imgList', maxCount: 5 }])
+
+router.post('/', cpUpload, async function (req, res) {
+  console.log('req', req)
+
+  const submitData = { ...JSON.parse(req.body.formData) }
+  // console.log('req',req)
+  // console.log('req.files.imgList',req.files.imgList)
+
+  //把所有圖片的filename寫入陣列再合併到submitData
+  const arr = []
+  req.files.imgList &&
+    req.files.imgList.map((item, index) => arr.push(item.filename))
+  submitData.image_path = arr.toString()
+  console.log('submitData', submitData)
+
+  //把submitData中部分值取出寫入products
+  const prodData = {
+    merchant_id: req.query.id,
+    title: submitData.title,
+    categories_id: submitData.category,
+    outline: submitData.outline,
+    image_path: submitData.image_path,
+    type: req.query.prodType,
+    launch_date: submitData.launchDate,
+    created_at: new Date(),
+  }
+  console.log('prodData', prodData)
+
+  const sqlInsertProd = 'INSERT INTO products SET ?'
+  const [prodResult] = await db.query(sqlInsertProd, prodData)
+
+  if (!prodResult.insertId) {
+    return res.json({
+      error: 'Insert product Failed',
+      success: false,
+    })
+  }
+
+  //把product insertId取出並寫入skus資料表
+  const prodInsertId = prodResult.insertId
+
+  //定義skusData
+  const skusData = {
+    product_id: prodInsertId,
+    price: Number(submitData.price.replace(/[^0-9.-]+/g,"")),
+    specification: '-',
+    sale_price: Number(submitData.salePrice.replace(/[^0-9.-]+/g,"")) || 0,
+    stocks: submitData.stock,
+  }
+
+  //判斷submitData中有多少個specification，將specification的值取出塞入一個陣列
+  const specArr = []
+  for (const key of Object.keys(submitData)) {
+    if (key.includes('specification')) specArr.push(submitData[key])
+  }
+
+  if (specArr.length === 0) {
+    console.log('skusData',skusData)
+    const sqlInsertSkus = 'INSERT INTO product_skus SET ?'
+    const [skusResult] = await db.query(sqlInsertSkus, skusData)
+
+    if (!skusResult.insertId) {
+      const sqlDelProd =
+        'DELETE A.* B.* FROM products A LEFT JOIN product_skus B ON A.id = B.product_id where A.id = ?'
+      const [result] = await db.query(sqlDelProd, prodInsertId)
+
+      return res.json({
+        error: 'Insert product skus Failed',
+        success: false,
+      })
+    }
+
+  } else {
+
+    //根據規格的數量，用for迴圈執行多次skus資料表的寫入
+    for (let i = 0; i < specArr.length; i++) {
+      skusData.specification = specArr[i]
+
+      const sqlInsertSkus = 'INSERT INTO product_skus SET ?'
+      const [skusResult] = await db.query(sqlInsertSkus, skusData)
+
+      if (!skusResult.insertId) {
+        const sqlDelProd =
+          'DELETE A.* B.* FROM products A LEFT JOIN product_skus B ON A.id = B.product_id where A.id = ?'
+        const [result] = await db.query(sqlDelProd, prodInsertId)
+
+        return res.json({
+          error: 'Insert product skus Failed',
+          success: false,
+        })
+      }
+    }
+  }
+
+  res.json({
+    body: submitData,
+    affectedRows: prodResult.affectedRows,
+    insertId: prodResult.insertId,
+    success: true,
+  })
+})
 
 //PUT
-
 //DELETE
 
 module.exports = router
