@@ -3,9 +3,6 @@ const { exists } = require("fs");
 const db = require(__dirname + "/../db_connect");
 const router = express.Router();
 
-// router.get("/", (req, res) => {
-//   res.send({ response: "products" }).status(200);
-// });
 
 async function getProducts() {
   const [products] = await db.query("SELECT * FROM products ");
@@ -75,8 +72,10 @@ async function getMerchantData(id, exclude) {
   const [[row]] = await db.query(product_count_sql, [id]);
   merchant.product_amount = row.count;
 
-  merchant.review = 4.8;
-  merchant.review_amount = 3600;
+  const [[evaluation]] = await db.query("SELECT AVG(star) as `average`, count(1) as `count` FROM `order_evaluations` WHERE merchant_id = ?", [id]);
+
+  merchant.review = Number.parseFloat(evaluation.average).toFixed(2);
+  merchant.review_amount = evaluation.count;
   merchant.fans = 21;
 
   return merchant;
@@ -113,6 +112,17 @@ async function getProductSkusGroupByMerchant(skuIds) {
   return Object.values(rows);
 }
 
+async function getReviewData(id) {
+  const [review] = await db.query("SELECT buyer_message, seller_message, name, avatar FROM order_evaluations JOIN customers ON order_evaluations.customer_id = customers.id WHERE order_evaluations.product_id = ?", [id]);
+
+  return review;
+}
+
+async function getUserInfo(userId) {
+  const [[userInfo]] = await db.query("SELECT name,phone_number,address FROM customers WHERE id=?", [userId]);
+    return userInfo;
+  };
+
 router.post("/bulk-get-product-skus", async (req, res) => {
   res.json(await getProductSkusGroupByMerchant(req.body.skuIds));
 });
@@ -125,7 +135,15 @@ router.get("/merchant/:id", async (req, res) => {
   res.json(await getMerchantData(req.params.id, req.query.exclude));
 });
 
-router.get("/", async (req, res) => {
+router.post("/userInfo", async (req, res) => {
+  res.json(await getUserInfo(req.body.userId));
+});
+
+router.get("/review/:id", async (req, res) => {
+  res.json(await getReviewData(req.params.id));
+});
+
+router.get("/all", async (req, res) => {
   res.json(await getProducts());
 });
 
