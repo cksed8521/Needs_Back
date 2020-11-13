@@ -5,7 +5,7 @@ const db = require(__dirname + "/../db_connect");
 const router = express.Router();
 const moment = require("moment-timezone");
 
-async function createOrderInTransaction(order) {
+async function createOrderInTransaction(connection, order) {
   const newOrderData = { ...order };
 
   // id, type, price, full_name, address, phone_number, note, status
@@ -18,7 +18,7 @@ async function createOrderInTransaction(order) {
   deliveryData.note = newOrderData.userInfo.note;
   deliveryData.status = 0;
   let sql = `INSERT INTO order_deliveries set ?`;
-  [{ affectedRows, insertId }] = await db.query(sql, [deliveryData]);
+  [{ affectedRows, insertId }] = await connection.query(sql, [deliveryData]);
   const delivery_insertId = insertId;
   const delivery_affectedRows = affectedRows;
 
@@ -29,7 +29,7 @@ async function createOrderInTransaction(order) {
   paymentData.created_at = new Date();
   paymentData.updated_at = new Date();
   sql = `INSERT INTO order_payments set ?`;
-  [{ affectedRows, insertId }] = await db.query(sql, [paymentData]);
+  [{ affectedRows, insertId }] = await connection.query(sql, [paymentData]);
   const payment_insertId = insertId;
   const payment_affectedRows = affectedRows;
 
@@ -45,13 +45,13 @@ async function createOrderInTransaction(order) {
   orderData.created_at = new Date();
   orderData.updated_at = new Date();
   sql = `INSERT INTO orders set ?`;
-  [{ affectedRows, insertId }] = await db.query(sql, [orderData]);
+  [{ affectedRows, insertId }] = await connection.query(sql, [orderData]);
   const order_insertId = insertId;
   const order_affectedRows = affectedRows;
 
   orderData.order_number = orderData.order_number + order_insertId;
   sql = `UPDATE orders SET order_number = ? WHERE id = ?`;
-  [{ affectedRows }] = await db.query(sql, [
+  [{ affectedRows }] = await connection.query(sql, [
     orderData.order_number,
     order_insertId,
   ]);
@@ -70,7 +70,7 @@ async function createOrderInTransaction(order) {
       return `(${columns.join(",")})`;
     })
     .join(",");
-  await db.query(sql + insertedValues);
+  await connection.query(sql + insertedValues);
 
   return {
     success:
@@ -83,16 +83,17 @@ async function createOrderInTransaction(order) {
 }
 
 async function addOrder(order) {
-  await db.query("START TRANSACTION");
+  const connection = await db.getConnection()
+  await connection.query("START TRANSACTION");
   try {
-    const result = await createOrderInTransaction(order);
-    // await db.query("ROLLBACK");
-    await db.query("COMMIT");
+    const result = await createOrderInTransaction(connection, order);
+    // await connection.query("ROLLBACK");
+    await connection.query("COMMIT");
     return result;
   } catch (e) {
     console.log("Got an error while createing order");
     console.log(e);
-    await db.query("ROLLBACK");
+    await connection.query("ROLLBACK");
   }
 }
 
