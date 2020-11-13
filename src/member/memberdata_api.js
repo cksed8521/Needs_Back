@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
 
   router.post("/", async (req, res) => {
     const data = {...req}
-    // console.log('data.body',data.body)
+    console.log('data.body',data.body)
     const sql = "UPDATE `customers` SET ? WHERE `customers`.`id` = ?;"
 
     const [{affectedRows, changedRows}] = await db.query(sql, [ data.body, req.query.id ]);

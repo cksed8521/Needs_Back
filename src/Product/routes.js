@@ -3,9 +3,24 @@ const { exists } = require("fs");
 const db = require(__dirname + "/../db_connect");
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.send({ response: "products" }).status(200);
-});
+// router.get("/", (req, res) => {
+//   res.send({ response: "products" }).status(200);
+// });
+
+async function getProducts() {
+  const [products] = await db.query("SELECT * FROM products ");
+  const [skus] = await db.query("SELECT * FROM product_skus");
+
+  return products.map((product) => {
+    product.skus = product.skus ? product.skus : [];
+    for (i in skus) {
+      if (product.id === skus[i].product_id) {
+        product.skus.push(skus[i]);
+      }
+    }
+    return product;
+  });
+}
 
 async function getProductData(id) {
   const product_sql =
@@ -55,7 +70,8 @@ async function getMerchantData(id, exclude) {
   months += now.getMonth();
   merchant.created_months = months;
 
-  const product_count_sql = "SELECT COUNT(1) as count FROM products WHERE merchant_id = ?";
+  const product_count_sql =
+    "SELECT COUNT(1) as count FROM products WHERE merchant_id = ?";
   const [[row]] = await db.query(product_count_sql, [id]);
   merchant.product_amount = row.count;
 
@@ -66,12 +82,51 @@ async function getMerchantData(id, exclude) {
   return merchant;
 }
 
+async function getProductSkusGroupByMerchant(skuIds) {
+  skuFilter = skuIds.join(",");
+  const selectFileds =
+    "products.merchant_id, brand_name, product_id, title, image_path, product_skus.id as skuid, specification, price, sale_price, stocks";
+
+  let sql =
+    `SELECT ${selectFileds} FROM products ` +
+    "JOIN product_skus ON products.id = product_skus.product_id " +
+    "JOIN merchants on products.merchant_id = merchants.id " +
+    `WHERE product_skus.id in (${skuFilter})`;
+  let [rows] = await db.query(sql);
+
+  rows = rows.reduce((accumulator, row) => {
+    if (accumulator[row.merchant_id] === undefined) {
+      accumulator[row.merchant_id] = {
+        merchant_id: row.merchant_id,
+        brand_name: row.brand_name,
+        products: [],
+      };
+    }
+    let productSku = {...row}
+    productSku.image_path = row.image_path.split(",")[0];
+    delete productSku['brand_name'];
+    delete productSku['merchant_id'];
+    accumulator[row.merchant_id].products.push(productSku);
+    return accumulator;
+  }, {});
+
+  return Object.values(rows);
+}
+
+router.post("/bulk-get-product-skus", async (req, res) => {
+  res.json(await getProductSkusGroupByMerchant(req.body.skuIds));
+});
+
 router.get("/:id", async (req, res) => {
   res.json(await getProductData(req.params.id));
 });
 
 router.get("/merchant/:id", async (req, res) => {
   res.json(await getMerchantData(req.params.id, req.query.exclude));
+});
+
+router.get("/", async (req, res) => {
+  res.json(await getProducts());
 });
 
 module.exports = router;
