@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
 
 //--editpage--
 
-//editpage-upload
+//editpage-Bgimg-upload
 router.post("/editpage", 
 upload.single("image"), async (req, res) => {
   console.log("req", req.file.filename);
@@ -57,6 +57,51 @@ console.log("results1", results1);
     "status": "done",
     "url": "http://localhost:5000/BackgroundImg/"+filename,
     "thumbUrl": "http://localhost:5000/BackgroundImg/"+filename
+  }
+  );
+});
+
+//editpage-Storyimg-upload
+router.post("/postStoryImg", 
+upload.single("image"),async (req, res) => {
+  console.log("req", req.file.filename);
+  console.log("req", req.file);
+  const filename =  req.file.filename
+  console.log('filename',filename)
+  
+  let sql =
+    "UPDATE `brand_info` SET `brandStory_img` = ? WHERE `brand_info`.`merchant_id` = ?;"
+  
+  const [results1] = await db.query(sql, [req.file.filename , 12]);
+
+console.log("results1", results1);
+  if (!results1.affectedRows) {
+    return res.json("error");
+}
+  res.json(
+    {
+    "name": filename,
+    "status": "done",
+    "url": "http://localhost:5000/BackgroundImg/"+filename,
+    "thumbUrl": "http://localhost:5000/BackgroundImg/"+filename
+  }
+  );
+});
+
+//editpage-info-upload
+router.post("/editpage/changeData", upload.none(), async (req, res) => {
+  console.log("req", req);
+  let sql =
+    // "UPDATE `brand_info` SET `bg_color` = ? , `main_productId` = ?, `main_activitiesId` = ?, `brand_story` = ? WHERE `brand_info`.`merchant_id` = ?;"
+    "UPDATE `brand_info` SET `brand_story` = ?, `bg_color` = ?, `main_productId` = ?, `main_activitiesId` = ? WHERE `brand_info`.`id` = 12;"
+  const [results2] = await db.query(sql, [req.body.brand_story,req.body.bg_color , req.body.main_productId, req.body.main_activitiesId, req.query.id]);
+  console.log("results2", results2);
+  if (!results2.affectedRows) {
+    return res.json("error");
+}
+  res.json(
+    {
+    success:"success!"
   }
   );
 });
@@ -85,7 +130,7 @@ router.get("/merchant_product", async(req, res) => {
   const activities_sql =
   "SELECT id,title,outline,image_path, type FROM products WHERE type=1 AND merchant_id=?";//商家活動
   const [products] = await db.query(products_sql, [req.query.merchant_id]);
-  const [activities] = await db.query(products_sql, [req.query.merchant_id]);
+  const [activities] = await db.query(activities_sql, [req.query.merchant_id]);
   console.log('product_req',req.query)
   console.log('products',products)
   console.log('activities',activities)
@@ -98,11 +143,7 @@ router.get("/merchant_product", async(req, res) => {
     }
     res.json(output);
 });
-//     if(! products){
-//         return res.json('error');
-//     }
-//     res.json(products);
-// });
+
 
 
 
