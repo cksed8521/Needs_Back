@@ -44,6 +44,7 @@ router.post('/memberlogin', upload.none(), async (req, res) => {
   if (results.length) {
     output.user.id = results[0].id
     output.user.username = results[0].member_name
+    output.user.avatar = results[0].avatar
     output.success = true
   }
   console.log(output)
