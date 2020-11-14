@@ -2,10 +2,53 @@ const express = require("express");
 
 const db = require(__dirname + "/../../db_connect");
 const router = express.Router();
+const upload = require('./uploadModule');
 
-router.get("/", (req, res) => {
-  res.send('hi')
+router.post("/addnewads", upload.single("file"), async(req, res) => {
+  console.log(req.file); 
+  const file = req.file.filename
+  const title = req.body.title
+  const budget = req.body.budget
+  const bid = req.body.bid
+  const start_date = req.body.start_date
+  const end_date = req.body.end_date
+  const productid1 = req.body.productid1
+  const productid2 = req.body.productid2
+  const productid3 = req.body.productid3
+
+  const sql = "INSERT INTO `ads_in_progress`(`merchant_id`,`title_ads`, `budget`, `bid`, `start_date`, `end_date`, `img`, `productid1`, `productid2`, `productid3`) VALUES (12, ?, ? ,?, ? ,?, ?, ?, ? ,?)"
+  await db.query(sql, [title, budget, bid, start_date, end_date, file, productid1, productid2, productid3]).then(([result]) => {
+    res.json(
+      {
+        "url": "http://localhost:5000/adsCover" + file
+      }
+    )
+  });
 });
+router.get("/adsproduct", (req, res) => {
+  db.query("SELECT `id`, `merchant_id`, `title`, `outline`, `image_path` FROM `products` WHERE merchant_id = 12 ").then(([result]) => {
+    res.json(result); 
+  });
+});
+
+router.get("/adsforproduct1", (req, res) => {
+  db.query("SELECT `id`, `title`, `outline`, `image_path`, `sid` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid1").then(([result]) => {
+    res.json(result); 
+  });
+});
+
+router.get("/adsforproduct2", (req, res) => {
+  db.query("SELECT `id`, `title`, `outline`, `image_path`, `sid` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid2").then(([result]) => {
+    res.json(result); 
+  });
+});
+
+router.get("/adsforproduct3", (req, res) => {
+  db.query("SELECT `id`, `title`, `outline`, `image_path`, `sid` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid3").then(([result]) => {
+    res.json(result); 
+  });
+});
+
 
 router.get("/star", (req, res) => {
   db.query(
@@ -102,23 +145,27 @@ router.get("/adsinprogress", (req, res) => {
 });
 
 
-router.get("/adsinprogressforctr", (req, res) => {
-  db.query("SELECT ads_data.ads_id, clicks_day, impressions_day, days_date  FROM `ads_in_progress` INNER JOIN ads_data ON ads_in_progress.sid = ads_data.ads_id  ORDER BY days_date DESC").then(([result]) => {
+router.get("/adsinprogressforsum", (req, res) => {
+  db.query("SELECT *, SUM(clicks_day) total_clicks_day, SUM(impressions_day) total_impressions_day  FROM `ads_in_progress` INNER JOIN ads_data ON ads_in_progress.sid = ads_data.ads_id GROUP BY sid ORDER BY days_date DESC").then(([result]) => {
     res.json(result); 
   });
 });
 
-router.post("/addnewads", (req, res) => {
-  const title = req.body.title
-  const budget = req.body.budget
-  const bid = req.body.bid
-  const start_date = req.body.start_date
-  const end_date = req.body.end_date
-
-  db.query("INSERT INTO `ads_new_ads`(`title`, `budget`, `bid`, `start_date`, `end_date`) VALUES (?, ? ,?, ? ,? )", [title, budget, bid, start_date, end_date]).then(([result]) => {
-    console.log(result); 
+router.get("/adsinprogressforctr", (req, res) => {
+  db.query("SELECT * FROM `ads_in_progress` LEFT JOIN ads_data ON ads_in_progress.sid = ads_data.ads_id ORDER BY days_date DESC").then(([result]) => {
+    res.json(result); 
   });
 });
+
+// router.get("/adsproduct", (req, res) => {
+//   db.query("SELECT title, outline, image_path, sid FROM `products` INNER JOIN `ads_in_progress` ON products.merchant_id = ads_in_progress.merchant_id ORDER BY `sid` DESC ").then(([result]) => {
+//     res.json(result); 
+//   });
+// });
+
+
+
+
 
 
 
