@@ -56,11 +56,11 @@ app.use("/productlist", require(__dirname + "/src/productList/productList"));
 app.use("/article", require(__dirname + "/src/article/article"));
 app.use("/member", require(__dirname + "/src/member/memberdata_api"));
 app.use('/payments', require('./src/payment/routes.js'));
-app.post("/member", require(__dirname + "/src/member/memberdata_api"));
 app.use("/comment", require(__dirname + "/src/member/memcomment_api"));
 app.use("/shop", require(__dirname + "/src/member/memshop_api"));
 app.use("/like", require(__dirname + "/src/member/memlike_api"));
 app.use("/inform", require(__dirname + "/src/member/meminformation_api"));
+app.use("/qa", require(__dirname + "/src/member/memqa_api"));
 app.use('/Template', require( __dirname + '/src/template/Template'));
 app.use("/get-categories-api", require(__dirname + "/src/backend-ms/categories"));
 
