@@ -175,7 +175,7 @@ async function getListData(req) {
                                           ON A.id = TEMPQUA.product_id         
                                     LEFT JOIN product_categories AS C ON A.categories_id = C.id 
                                     LEFT JOIN order_products AS D ON TEMPTBL.id = D.product_sku_id 
-                                    WHERE A.merchant_id = ?
+                                    WHERE A.merchant_id = ? AND TEMPTBL.stocks = 0
                                     ORDER BY id DESC LIMIT ${
                                       (output.page - 1) * output.perPage
                                     }, ${output.perPage}`

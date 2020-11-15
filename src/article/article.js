@@ -62,6 +62,7 @@ router.post('/',upload.single("image"),async(req, res) => {
 
 
 
+
 async function getArticle(id) {
   const article_sql =
   'SELECT * FROM `article` WHERE article.id=?'
@@ -70,12 +71,18 @@ async function getArticle(id) {
   return product;
 }
 
-
 router.get("/:id", async (req, res) => {
-console.log(req.params.id)
   res.json(await getArticle(req.params.id));
 });
 
+// delete article
+
+router.delete("/:id" ,async(req, res) => {
+  console.log(req.params.id)
+  const sql =  "DELETE FROM `article` WHERE id=?"
+  const [results] = await db.query(sql, [req.params.id])
+  res.json(results)
+})
 
 
 // send email (email, title , text)

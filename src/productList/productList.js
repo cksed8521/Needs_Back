@@ -62,4 +62,20 @@ router.get('/categories' , async (req,res) =>{
     res.json(categories)
 })
 
+
+router.post('wishlist' , async(req, res) => {
+  console.log(req.body)
+  customer_id = req.body[0]
+  product_id = req.body[0]
+  const sql = 'INSERT'
+
+  const [{ affectedRows, insertId }] = await db.query(sql, [customer_id,product_id]);
+
+  res.json({
+    success: !!affectedRows,
+    affectedRows,
+    insertId,
+  });
+})
+
 module.exports = router;
