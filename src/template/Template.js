@@ -7,7 +7,6 @@ router.use(express.urlencoded({ extended: false }));
 router.use(express.json());
 
 //templatelist
-
 router.get("/", async (req, res) => {
   let sql = ``;
   {
@@ -33,14 +32,13 @@ router.get("/", async (req, res) => {
 
 
 //--editpage--
-
 //editpage-Bgimg-upload
 router.post("/editpage", 
 upload.single("image"), async (req, res) => {
   console.log("req", req.file.filename);
   console.log("req", req.file);
-  const filename =  req.file.filename
-  console.log('filename',filename)
+  const BgImg =  req.file.filename
+  console.log('filename',BgImg)
   
   let sql =
     "UPDATE `brand_info` SET `bg_img` = ? WHERE `brand_info`.`merchant_id` = ?;"
@@ -53,42 +51,42 @@ console.log("results1", results1);
 }
   res.json(
     {
-    "name": filename,
+    "name": BgImg,
     "status": "done",
-    "url": "http://localhost:5000/BackgroundImg/"+filename,
-    "thumbUrl": "http://localhost:5000/BackgroundImg/"+filename
+    "url": "http://localhost:5000/BackgroundImg/"+BgImg,
+    "thumbUrl": "http://localhost:5000/BackgroundImg/"+BgImg
   }
   );
 });
 
-//editpage-Storyimg-upload
-router.post("/postStoryImg", 
-upload.single("image"),async (req, res) => {
-  console.log("req", req.file.filename);
-  console.log("req", req.file);
-  const filename =  req.file.filename
-  console.log('filename',filename)
+// //Storyimg-upload
+// router.post("/postStoryImg", 
+// upload.single("image"),async (req, res) => {
+//   console.log("req", req.file.filename);
+//   console.log("req", req.file);
+//   const filename =  req.file.filename
+//   console.log('filename',filename)
   
-  let sql =
-    "UPDATE `brand_info` SET `brandStory_img` = ? WHERE `brand_info`.`merchant_id` = ?;"
+//   let sql =
+//     "UPDATE `brand_info` SET `brandStory_img` = ? WHERE `brand_info`.`merchant_id` = ?;"
   
-  const [results1] = await db.query(sql, [req.file.filename , 12]);
+//   const [results1] = await db.query(sql, [req.file.filename , 12]);
 
-console.log("results1", results1);
-  if (!results1.affectedRows) {
-    return res.json("error");
-}
-  res.json(
-    {
-    "name": filename,
-    "status": "done",
-    "url": "http://localhost:5000/BackgroundImg/"+filename,
-    "thumbUrl": "http://localhost:5000/BackgroundImg/"+filename
-  }
-  );
-});
+// console.log("results1", results1);
+//   if (!results1.affectedRows) {
+//     return res.json("error");
+// }
+//   res.json(
+//     {
+//     "name": filename,
+//     "status": "done",
+//     "url": "http://localhost:5000/BackgroundImg/"+filename,
+//     "thumbUrl": "http://localhost:5000/BackgroundImg/"+filename
+//   }
+//   );
+// });
 
-//editpage-info-upload
+//info-upload
 router.post("/editpage/changeData", upload.none(), async (req, res) => {
   console.log("req", req.body);
   const brand_story = req.body[0]
@@ -100,7 +98,6 @@ router.post("/editpage/changeData", upload.none(), async (req, res) => {
   console.log(bg_color)
 
   let sql =
-    // "UPDATE `brand_info` SET `bg_color` = ? , `main_productId` = ?, `main_activitiesId` = ?, `brand_story` = ? WHERE `brand_info`.`merchant_id` = ?;"
     "UPDATE `brand_info` SET `brand_story` = ?, `bg_color` = ?, `main_productId` = ?, `main_activitiesId` = ? WHERE `brand_info`.`merchant_id` = ?;"
   const [results2] = await db.query(sql, [brand_story, bg_color, main_productId, main_activitiesId, req.query.id]);
   // console.log("results2", results2);
@@ -116,13 +113,28 @@ router.post("/editpage/changeData", upload.none(), async (req, res) => {
 
 // selector
 
-// get sepcific merchant_info
+// get sepcific merchant, ALL_info //merchant_id = 12
 // http://localhost:5000/Template/merchant_info?merchants=12
 router.get("/merchant_info", async(req, res) => {
   const merchant_sql =
   "SELECT * FROM merchants LEFT JOIN brand_info ON merchants.id = brand_info.merchant_id WHERE merchants.id=?";
-  console.log('merchant_req',req.query)
+
+  // console.log('merchant_req',req.query)
   const [[merchant]] = await db.query(merchant_sql, [req.query.merchants]);//商家所有資訊
+  const product_count_sql =
+    "SELECT COUNT(1) as count FROM products WHERE merchant_id = ?";
+  const [[row]] = await db.query(product_count_sql, [req.query.merchants]);//商品數
+
+  let since = new Date(merchant.created_at);
+  let now = new Date();
+  let months = (since.getFullYear() - now.getFullYear()) * 12;
+  months -= since.getMonth();
+  months += now.getMonth();
+
+  merchant.created_months = months;
+  merchant.product_amount = row.count;
+  merchant.review = 4.8;
+  merchant.fans = 32;
   console.log('merchant',merchant)
     if(! merchant){
         return res.json('error');
@@ -130,7 +142,8 @@ router.get("/merchant_info", async(req, res) => {
     res.json(merchant);
 });
 
-//get specific merchant_product
+
+//get specific merchant_product(activities & products)
 // http://localhost:5000/Template/merchant_product?merchant_id=12
 router.get("/merchant_product", async(req, res) => {
   const products_sql =
@@ -154,56 +167,54 @@ router.get("/merchant_product", async(req, res) => {
 
 
 
+async function getMerchantData(id, exclude) {
+  const merchant_sql =
+    "SELECT * FROM merchants LEFT JOIN brand_info ON merchants.id = brand_info.merchant_id WHERE merchants.id=?";
+  const [[merchant]] = await db.query(merchant_sql, [id]);//商家所有資訊
 
+  const products_sql =
+    "SELECT id,title,image_path FROM products WHERE merchant_id=? and id!=? LIMIT 6";
+  const [products] = await db.query(products_sql, [id, exclude]);//商家商品
 
-// async function getMerchantData(id, exclude) {
-//   const merchant_sql =
-//     "SELECT * FROM merchants LEFT JOIN brand_info ON merchants.id = brand_info.merchant_id WHERE merchants.id=?";
-//   const [[merchant]] = await db.query(merchant_sql, [id]);//商家所有資訊
+  merchant.products = products.map((product) => {
+    product.image_path = product.image_path.trim().split(",")[0];
+    return product;
+  });
 
-//   const products_sql =
-//     "SELECT id,title,image_path FROM products WHERE merchant_id=? and id!=? LIMIT 6";//商家商品
-//   const [products] = await db.query(products_sql, [id, exclude]);
+  const reformattedArray = products.map((item) => Object.values(item)[0]);
+  const placeholder = Array(reformattedArray.length).fill("?").join();
 
-//   merchant.products = products.map((product) => {
-//     product.image_path = product.image_path.trim().split(",")[0];
-//     return product;
-//   });
+  const skus_sql =
+    "SELECT * FROM product_skus WHERE product_id IN (" + placeholder + ")";
+  const [skus] = await db.query(skus_sql, reformattedArray);
 
-//   const reformattedArray = products.map((item) => Object.values(item)[0]);
-//   const placeholder = Array(reformattedArray.length).fill("?").join();
+  products.map(function (product) {
+    sku = skus.find((s) => s.product_id == product.id);
+    return (product.price = sku.price), (product.sale_price = sku.sale_price);
+  });
 
-//   const skus_sql =
-//     "SELECT * FROM product_skus WHERE product_id IN (" + placeholder + ")";
-//   const [skus] = await db.query(skus_sql, reformattedArray);
+  let since = new Date(merchant.created_at);
+  let now = new Date();
+  let months = (since.getFullYear() - now.getFullYear()) * 12;
+  months -= since.getMonth();
+  months += now.getMonth();
+  merchant.created_months = months;
 
-//   products.map(function (product) {
-//     sku = skus.find((s) => s.product_id == product.id);
-//     return (product.price = sku.price), (product.sale_price = sku.sale_price);
-//   });
+  const product_count_sql =
+    "SELECT COUNT(1) as count FROM products WHERE merchant_id = ?";
+  const [[row]] = await db.query(product_count_sql, [id]);//商品數
+  merchant.product_amount = row.count;
 
-//   let since = new Date(merchant.created_at);
-//   let now = new Date();
-//   let months = (since.getFullYear() - now.getFullYear()) * 12;
-//   months -= since.getMonth();
-//   months += now.getMonth();
-//   merchant.created_months = months;
+  merchant.review = 4.8;
+  merchant.review_amount = 3600;
+  merchant.fans = 21;
 
-//   const product_count_sql =
-//     "SELECT COUNT(1) as count FROM products WHERE merchant_id = ?";
-//   const [[row]] = await db.query(product_count_sql, [id]);//商品數
-//   merchant.product_amount = row.count;
+  return merchant;
+}
 
-//   merchant.review = 4.8;
-//   merchant.review_amount = 3600;
-//   merchant.fans = 21;
-
-//   return merchant;
-// }
-
-// router.get("/edit/merchant/:id", async (req, res) => {
-//   res.json(await getMerchantData(req.params.id, req.query.exclude));
-// });
+router.get("/merchant/:id", async (req, res) => {
+  res.json(await getMerchantData(req.params.id, req.query.exclude));
+});
 
 
 
