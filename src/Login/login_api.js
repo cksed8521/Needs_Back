@@ -39,7 +39,7 @@ router.post('/memberlogin', upload.none(), async (req, res) => {
     success: false,
   }
   const sql =
-    'SELECT id, email, name as member_name FROM customers WHERE email = ? AND password = SHA1(?)'
+    'SELECT id, email, name as member_name, avatar FROM customers WHERE email = ? AND password = SHA1(?)'
   const [results] = await db.query(sql, [req.body.username, req.body.password])
   if (results.length) {
     output.user.id = results[0].id
