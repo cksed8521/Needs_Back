@@ -40,7 +40,7 @@ const router = require('./router')
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
 app.use(router)
-app.use(cors())
+app.use(cors(corsOptions))
 
 
 //引用自己的route資料夾
@@ -64,7 +64,7 @@ app.use("/qa", require(__dirname + "/src/member/memqa_api"));
 app.use('/Template', require( __dirname + '/src/template/Template'));
 app.use("/get-categories-api", require(__dirname + "/src/backend-ms/categories"));
 app.use("/chat", require(__dirname + "/src/Chat/Chat"));
-
+app.use('/dashboard', require(__dirname + '/src/Backend/Dashboard/route'));
 
 
 //socketIo
@@ -123,6 +123,7 @@ io.on("connection", (socket) => {
     }
   });
 });
+
 
 app.use(express.static(__dirname + "/public/"));
 

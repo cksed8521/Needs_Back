@@ -20,7 +20,6 @@ router.get("/", async (req, res) => {
     const img = product.image_path.trim().split(",")[0];
     product.image_path = img;
     // console.log('product.image_path-->',product.image_path)
-    console.log("222");
    });
     results.forEach((el) => {
       el.created_at = moment(el.created_at).format("YYYY-MM-DD");
