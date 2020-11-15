@@ -31,20 +31,32 @@ router.get("/adsproduct", (req, res) => {
   });
 });
 
+router.get("/allads", (req, res) => {
+  db.query("SELECT * FROM `ads_in_progress` ORDER BY bid DESC LIMIT 3").then(([result]) => {
+    res.json(result); 
+  });
+});
+
+router.get("/allproduct", (req, res) => {
+  db.query("SELECT products.id, title, image_path, price FROM `products` INNER JOIN product_skus ON products.id = product_skus.product_id GROUP BY id").then(([result]) => {
+    res.json(result); 
+  });
+});
+
 router.get("/adsforproduct1", (req, res) => {
-  db.query("SELECT `id`, `title`, `outline`, `image_path`, `sid` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid1").then(([result]) => {
+  db.query("SELECT  `title`, `outline`, `image_path`, `sid`, `price`, `product_id`, `sale_price` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid1 INNER JOIN product_skus ON products.id = product_skus.product_id GROUP BY product_id").then(([result]) => {
     res.json(result); 
   });
 });
 
 router.get("/adsforproduct2", (req, res) => {
-  db.query("SELECT `id`, `title`, `outline`, `image_path`, `sid` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid2").then(([result]) => {
+  db.query("SELECT  `title`, `outline`, `image_path`, `sid`, `price`, `product_id`, `sale_price` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid2 INNER JOIN product_skus ON products.id = product_skus.product_id GROUP BY product_id").then(([result]) => {
     res.json(result); 
   });
 });
 
 router.get("/adsforproduct3", (req, res) => {
-  db.query("SELECT `id`, `title`, `outline`, `image_path`, `sid` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid3").then(([result]) => {
+  db.query("SELECT  `title`, `outline`, `image_path`, `sid`, `price`, `product_id`, `sale_price` FROM `products` INNER JOIN ads_in_progress ON products.id = ads_in_progress.productid3 INNER JOIN product_skus ON products.id = product_skus.product_id GROUP BY product_id").then(([result]) => {
     res.json(result); 
   });
 });

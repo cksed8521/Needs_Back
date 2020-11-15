@@ -6,6 +6,7 @@ const {v4:uuidv4} = require('uuid');
 const extMap = {
     'image/png':'.png',
     'image/jpeg':'.jpeg',
+    'image/jpg':'.jpg',
     'image/gif':'.gif',
 };
 
