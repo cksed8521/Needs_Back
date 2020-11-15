@@ -40,7 +40,7 @@ const router = require('./router')
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
 app.use(router)
-app.use(cors())
+app.use(cors(corsOptions))
 
 
 //引用自己的route資料夾
@@ -124,7 +124,7 @@ io.on("connection", (socket) => {
   });
 });
 
-
+app.use('/dashboard', require(__dirname + '/src/Backend/Dashboard/route'));
 app.use(express.static(__dirname + "/public/"));
 
 server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
