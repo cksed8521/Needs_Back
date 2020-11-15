@@ -23,7 +23,7 @@ async function Comment(req) {
       
     case "notyet":
       let sqlUncomment =
-        "SELECT order_evaluations.*, products.title,products.image_path,merchants.brand_name FROM order_evaluations LEFT JOIN products ON order_evaluations.product_id = products.id LEFT JOIN merchants ON order_evaluations.merchant_id = merchants.id WHERE customer_id = ? AND order_evaluations.buyer_message IS null";
+        "SELECT order_evaluations.*, products.title,products.image_path,merchants.brand_name,order_evaluations.comment_id FROM order_evaluations LEFT JOIN products ON order_evaluations.product_id = products.id LEFT JOIN merchants ON order_evaluations.merchant_id = merchants.id WHERE customer_id = ? AND order_evaluations.buyer_message IS null";
       const [results2] = await db.query(sqlUncomment, [req.query.customer_id]);
       output.filter = "notyet";
       results2.map((product) => {
@@ -31,6 +31,7 @@ async function Comment(req) {
         product.image_path = img;
       });
       output.rows = results2;
+      console.log('results2',results2)
       return output;
   }
 }
@@ -41,16 +42,20 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/",async(req,res)=>{
-  const data = {...req}
-  console.log('data.body',data.body)
-  const sql = "UPDATE `order_evaluations` SET ? WHERE `order_evaluations`.`id` = ?"
-  const [{affectedRows,changedRows}] = await db.query(sql,[data.body,req.query.id]);
-  console.log('ccc')
+  // const data = {...req.body}
+  // console.log('req.body',req.body)
+  // console.log('[ req.body[0]',[ req.body[0])
+  const sql = "UPDATE `order_evaluations` SET `buyer_message` = ? WHERE customer_id = 1 AND `buyer_message` IS null;"
+  const [{affectedRows,changedRows}] = await db.query(sql,[ req.body[0] , req.query.id ]);
+  console.log('req.body[0]',req.body[0])
+  console.log('req.query.id',req.body[1])
+
   res.json({
     success:!!changedRows,
     affectedRows,
     changedRows,
   });
+  console.log('ccc')
 })
 
 module.exports = router;
