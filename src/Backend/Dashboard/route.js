@@ -65,7 +65,7 @@ router.get("/adsforproduct3", (req, res) => {
 router.get("/star", (req, res) => {
   db.query(
     `SELECT star FROM orders JOIN order_evaluations 
-    ON orders.order_number = order_evaluations.order_id 
+    ON orders.id = order_evaluations.order_id 
     WHERE orders.merchant_id = 3`
   ).then(([result]) => {
     res.json(result);
@@ -73,31 +73,31 @@ router.get("/star", (req, res) => {
 });
 
 router.get("/5star", (req, res) => {
-  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.order_number = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 5").then(([result]) => {
+  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.id = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 5").then(([result]) => {
     res.json(result);
   });
 });
 
 router.get("/4star", (req, res) => {
-  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.order_number = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 4").then(([result]) => {
+  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.id = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 4").then(([result]) => {
     res.json(result);
   });
 });
 
 router.get("/3star", (req, res) => {
-  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.order_number = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 3").then(([result]) => {
+  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.id = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 3").then(([result]) => {
     res.json(result);
   });
 });
 
 router.get("/2star", (req, res) => {
-  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.order_number = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 2").then(([result]) => {
+  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.id = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 2").then(([result]) => {
     res.json(result);
   });
 });
 
 router.get("/1star", (req, res) => {
-  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.order_number = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 1").then(([result]) => {
+  db.query("SELECT * FROM orders JOIN order_evaluations ON orders.id = order_evaluations.order_id WHERE orders.merchant_id = 3 AND order_evaluations.star = 1").then(([result]) => {
     res.json(result);
   });
 });
