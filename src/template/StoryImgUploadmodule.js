@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     //若未設定diskStorage就會直接傳到指定位置不會傳到暫存資料夾
     //決定儲存位置:destination
     destination: function(req, file , cb){
-        cb(null, __dirname+'/../../public/BackgroundImg')
+        cb(null, __dirname+'/../../public/BrandStoryImg')
         //公式:cb(null, __dirname+'/../public/img')
     },
     //決定儲存檔名:filename
