@@ -62,7 +62,6 @@ async function getListData(req) {
           sqlMerchantIdLaunched,
           [req.query.id]
         )
-        console.log('totalLaunchedRows', totalLaunchedRows)
         if (totalLaunchedRows > 0) {
           let page = parseInt(req.query.page) || 1
           output.totalRows = totalLaunchedRows
@@ -135,7 +134,6 @@ async function getListData(req) {
         const [[{ totalSoldOutRows }]] = await db.query(sqlMerchantIdSoldOut, [
           req.query.id,
         ])
-        console.log('totalSoldOutRows', totalSoldOutRows)
         if (totalSoldOutRows > 0) {
           let page = parseInt(req.query.page) || 1
           output.totalRows = totalSoldOutRows
@@ -208,7 +206,6 @@ async function getListData(req) {
         const [
           [{ totalUnlaunchedRows }],
         ] = await db.query(sqlMerchantIdUnlaunched, [req.query.id])
-        console.log('totalUnlaunchedRows', totalUnlaunchedRows)
         if (totalUnlaunchedRows > 0) {
           let page = parseInt(req.query.page) || 1
           output.totalRows = totalUnlaunchedRows
@@ -278,7 +275,6 @@ async function getListData(req) {
         let sqlMerchantId =
           'SELECT COUNT(1) totalRows from products WHERE merchant_id = ?'
         const [[{ totalRows }]] = await db.query(sqlMerchantId, [req.query.id])
-        console.log('totalRows', totalRows)
         if (totalRows > 0) {
           let page = parseInt(req.query.page) || 1
           output.totalRows = totalRows
@@ -360,7 +356,6 @@ async function getListData(req) {
             `%${req.query.searchInp}%`,
           ]
         )
-        console.log('totalLaunchedRows', totalLaunchedRows)
         if (totalLaunchedRows > 0) {
           let page = parseInt(req.query.page) || 1
           output.totalRows = totalLaunchedRows
@@ -443,7 +438,6 @@ async function getListData(req) {
           `${searchTypeMap[req.query.searchType]}`,
           `%${req.query.searchInp}%`,
         ])
-        console.log('totalSoldOutRows', totalSoldOutRows)
         if (totalSoldOutRows > 0) {
           let page = parseInt(req.query.page) || 1
           output.totalRows = totalSoldOutRows
@@ -527,7 +521,6 @@ async function getListData(req) {
           `${searchTypeMap[req.query.searchType]}`,
           `%${req.query.searchInp}%`,
         ])
-        console.log('totalUnlaunchedRows', totalUnlaunchedRows)
         if (totalUnlaunchedRows > 0) {
           let page = parseInt(req.query.page) || 1
           output.totalRows = totalUnlaunchedRows
@@ -608,7 +601,6 @@ async function getListData(req) {
           `${searchTypeMap[req.query.searchType]}`,
           `%${req.query.searchInp}%`,
         ])
-        console.log('totalRows', totalRows)
         if (totalRows > 0) {
           let page = parseInt(req.query.page) || 1
           output.totalRows = totalRows
@@ -694,8 +686,6 @@ router.post('/', cpUpload, async function (req, res) {
   console.log('req', req)
 
   const submitData = { ...JSON.parse(req.body.formData) }
-  // console.log('req',req)
-  // console.log('req.files.imgList',req.files.imgList)
 
   //把所有圖片的filename寫入陣列再合併到submitData
   const arr = []
@@ -810,7 +800,6 @@ router.put('/unlaunch', async (req, res) => {
   output.affectedRows = results.affectedRows
   output.success = true
 
-  console.log(output)
   res.json(output)
 })
 
