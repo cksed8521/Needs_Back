@@ -4,6 +4,24 @@ const db = require(__dirname + "/../../db_connect");
 const router = express.Router();
 const upload = require('./uploadModule');
 
+router.get("/fc", (req, res) => {
+  db.query("SELECT * FROM `full_calendar`").then(([result]) => {
+    res.json(result); 
+  });
+});
+
+router.post("/fcpost", async(req, res) => {
+  const title = req.body.title
+  const start = req.body.start
+  const end = req.body.end
+  console.log('fc',title, start, end)
+  console.log(req)
+  const sql = "INSERT INTO `full_calendar`(`title`, `start`, `end`) VALUES (?, ?, ?)"
+  await db.query(sql, [title, start, end]).then(([result]) => {
+    res.json(result); 
+  });
+});
+
 router.post("/addnewads", upload.single("file"), async(req, res) => {
   console.log(req.file); 
   const file = req.file.filename
