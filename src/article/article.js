@@ -1,15 +1,11 @@
 const express = require("express");
 
 const db = require(__dirname + "/../db_connect");
-const moment = require('moment-timezone');
 const router = express.Router();
 const upload = require(__dirname + '/articleUploadModule');
 
 //email
-const nodemailer = require('nodemailer')
-const mailGun = require('nodemailer-mailgun-transport');
-const sendMail = require("./mail");
-const sendmail = require(__dirname+"/mail")
+const sendMail = require(__dirname+"/mail")
 
 
 //success to upload into EditorJS
@@ -47,11 +43,7 @@ router.get("/", (req, res) => {
 });
 
 router.post('/',upload.single("image"),async(req, res) => {
-  if(!req.body[0] || !req.body[1] || !req.body[2] || !req.body[3]) return
-    console.log(req.body[0])
-    console.log(req.body[1])
-    console.log(req.body[2])
-    console.log(req.body[3])
+  console.log(req.body)
   const setTitle = req.body[0]
   const imgPath = req.body[1]
   const setOutline = req.body[2]
@@ -59,15 +51,15 @@ router.post('/',upload.single("image"),async(req, res) => {
 
   const sql =
     "INSERT INTO `article`(`title`, `image`, `outline`, `detial`,create_at) VALUES (?,?,?,?,now())";
-   console.log("3");
   const [{ affectedRows, insertId }] = await db.query(sql, [setTitle,imgPath,setOutline,setDetial]);
-    console.log("4");
+
   res.json({
     success: !!affectedRows,
     affectedRows,
     insertId,
   });
 });
+
 
 
 
@@ -79,28 +71,37 @@ async function getArticle(id) {
   return product;
 }
 
-
 router.get("/:id", async (req, res) => {
-console.log(req.params.id)
   res.json(await getArticle(req.params.id));
 });
 
+// delete article
+
+router.delete("/:id" ,async(req, res) => {
+  console.log(req.params.id)
+  const sql =  "DELETE FROM `article` WHERE id=?"
+  const [results] = await db.query(sql, [req.params.id])
+  res.json(results)
+})
 
 
-// send email
-// router.post('/email', (req, res) =>{
-//   // const [sql] = "SELECT `name`, `email` FROM `customers`"
-//   const { title, email,text} = req.body
-//   email = ''
-//   sendMail(email, title, text , function(err,data){
-//     if(err){
-//       res.status(500).json({message:'Internal Error'})
-//     } else {
-//       res.json({message:'Email Send'})
-//     }
-//   })
-//   res.json({message:'Message received!'})
-// })
+// send email (email, title , text)
+router.post('/email', (req, res) =>{
+  const subject = req.body[0]
+  const image = req.body[1]
+  const html = req.body[2].__html
+  console.log('subject' , req.body[0])
+  console.log('image' , req.body[1])
+  console.log('html' , req.body[2].__html)
+  
+  sendMail(subject,image ,html , function(err,data){
+    if(err){
+      res.status(500).json({message:'Internal Error'})
+    } else {
+      res.json({message:'Email Send'})
+    }
+  })
+})
 
 
 

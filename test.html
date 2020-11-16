@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <form id='payment-form' action="https://ccore.spgateway.com/MPG/mpg_gateway" method="POST">
+        MerchantID:
+        <input type="text" name="MerchantID" value="MS116335033"/>
+        <br/>TradeInfo:
+        <input type="text" name="TradeInfo"
+               value="c756aeef94235407af393140ffdfe8520d2874253b7637b9b43a4373bc92e53e986f02d6ff7f787e91d2db158dea26a3fcb7453a9234a04fd49cd67ca06d52f90cbd29bae2b551f575bf87910deb96600c09046667a3b4d5921701f571652ce8d14e730ded557c8d078af6d6ffa34304cd354edb98d25b9a95fce5f98cc8b2e05346be619ebe332ceac89dcb9908c2805a7c24acf31daae63714e2d358866de7f6517efe41654b070aca53f83a5aa238cecd14831bb01900e54dc5477875b81c7a29b08f11b33d4b925128230f10d9be1a950ee68bd0635d594e7a6b3476e666870e1494069ce9fcd0c25f220c520491fd141750bdb5601a5115a9b17cce8ec15bb5e1e2d72e6c03aa60ff7705ce3652b6704a107a4604adeace717a25dbb5f87ed9f55d027dfe9b489ba81b92fd7d08b59978c18e551303883394a2f1ef1f6bfdccf18ecf5e5b123921d8f3b967d7473ec756bd790cd34a2ea67499db7a535cc72db24f76ed0cd3ec050dc04a85f160"/>
+        <br/>TradeSha:
+        <input type="text" name="TradeSha" value="F7351A45D8BE99DD8471DEC41EEAD190604BD1052A078E2F5BE392419E265A12"/>
+        <br/>Version:
+        <input type="text" name="Version" value="1.5"/>
+        <br/>
+        <button type="submit" class="btn btn-primary" id="postPayment">Payment</button>
+    </form>
+</div>
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        $('#payment-form input[name=MerchantID]').val('')
+        $('#payment-form input[name=TradeInfo]').val('')
+        $('#payment-form input[name=TradeSha]').val('')
+        $('#payment-form input[name=Version]').val('')
+        $.getJSON("http://localhost:5000/payments/1/trade/info")
+            .done(function (data) {
+                $('#payment-form input[name=MerchantID]').val(data.merchantID)
+                $('#payment-form input[name=TradeInfo]').val(data.tradeInfo)
+                $('#payment-form input[name=TradeSha]').val(data.tradeSha)
+                $('#payment-form input[name=Version]').val(data.version)
+            });
+    });
+    // $('#payment-form input[name=MerchantID]')
+</script>
