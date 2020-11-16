@@ -14,7 +14,7 @@ async function getLike(req) {
       const [results1] = await db.query(sqlbrands, [req.query.customer_id]);
       output.filter = "brands";
       output.rows = results1;
-      console.log("result1", results1);
+      // console.log("result1", results1);
       return output;
 
     case "product":
@@ -28,7 +28,7 @@ async function getLike(req) {
       });
       output.filter = "product";
       output.rows = results2;
-      console.log("result2", results2);
+      // console.log("result2", results2);
       return output;
   }
 }
