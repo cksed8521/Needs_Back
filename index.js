@@ -63,28 +63,25 @@ app.use("/inform", require(__dirname + "/src/member/meminformation_api"));
 app.use("/qa", require(__dirname + "/src/member/memqa_api"));
 app.use('/Template', require( __dirname + '/src/template/Template'));
 app.use("/get-categories-api", require(__dirname + "/src/backend-ms/categories"));
-
-
+app.use("/chat", require(__dirname + "/src/Chat/Chat"));
+app.use('/dashboard', require(__dirname + '/src/Backend/Dashboard/route'));
 
 
 //socketIo
 io.on("connection", (socket) => {
-  socket.on("join",  ({ name, room }, callback) => {
+  socket.on("join",async ({ name, room }, callback) => {
     const { error, user } = addUser({ id: socket.id, name, room });
-    console.log(name)
-    console.log(room)
     if (error) return callback(error);
 
-    // Recording user and merchant channelroom  
-
-    // const chanel_sql = "INSERT INTO `channel_Room`(`customer_name`, `channelRoom`) VALUES (?,?)"
-    // const [channelroom] = await db.query(chanel_sql , [name, room])
-    // res.json(channelroom)
     socket.join(user.room);
 
-    socket.emit("message", {
-      text: `你好 ${user.name}, 請問找什麼呢 ?`,
-    });
+    // socket.emit("message", { text: `你好 ${user.name}, 請問找什麼呢 ?`, });
+
+    //  try to set login type and passing info to MySQL
+    const loginTime = moment().format('YYYY-MM-DD h:mm')
+    const logintype_sql = "INSERT INTO `channel_login_type`(`id`, `name`, `last_active`, `login_type`) VALUES (?,?,?)"
+    await db.query(logintype_sql , [user.name, loginTime, ])
+
     socket.broadcast
       .to(user.room)
       .emit("message", {text: `${user.name} 已上線` });
@@ -93,18 +90,21 @@ io.on("connection", (socket) => {
       room: user.room,
       users: getUsersInRoom(user.room),
     });
-
     callback();
   });
 
-  socket.on("sendMessage", (message, callback) => {
+  socket.on("sendMessage", async( message, callback) => {
     const user = getUser(socket.id);
 
     io.to(user.room).emit("message", { user: user.name, text: message, time:moment().format('h:mm a') });
 
-    // const chanel_sql = "INSERT INTO `channel_message`(`customer_name`, `message`,`timestamp`) VALUES (?,?)"
-    // const [channelroom] = await db.query(chanel_sql , [name, room])
-    // res.json(channelroom)
+    //send message info to MySQL
+    const to_name = user.name
+    const room = user.room
+    const timeNow = moment().format('YYYY-MM-DD h:mm')
+
+    const chanel_sql = "INSERT INTO `channel_message`(`to_name`,`room` ,`message`,`timestamp`) VALUES (?,?,?,?)"
+    await db.query(chanel_sql , [to_name,room ,message, timeNow])
 
     callback();
   });
@@ -124,12 +124,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use('/dashboard', require(__dirname + '/src/Backend/Dashboard/route'));
+
 app.use(express.static(__dirname + "/public/"));
 
 server.listen(process.env.PORT || 5000, () => console.log(`Server has started on port ${PORT}`))
-
-// app.listen(process.env.PORT || 5000, ()=>{
-//   console.log(`Server has started on port ${PORT}`);
-// })
-
