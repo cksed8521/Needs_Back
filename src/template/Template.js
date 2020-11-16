@@ -2,6 +2,7 @@ const express = require("express");
 const db = require(__dirname + "/../db_connect");
 const router = express.Router();
 const upload = require(__dirname + "/TemplateUploadmodule");
+const upload1 = require(__dirname + "/StoryImgUploadmodule");
 
 router.use(express.urlencoded({ extended: false }));
 router.use(express.json());
@@ -59,32 +60,32 @@ console.log("results1", results1);
   );
 });
 
-// //Storyimg-upload
-// router.post("/postStoryImg", 
-// upload.single("image"),async (req, res) => {
-//   console.log("req", req.file.filename);
-//   console.log("req", req.file);
-//   const filename =  req.file.filename
-//   console.log('filename',filename)
+//Storyimg-upload
+router.post("/postStoryImg", 
+upload1.single("image"),async (req, res) => {
+  console.log("req", req.file.filename);
+  console.log("req", req.file);
+  const filename =  req.file.filename
+  console.log('filename',filename)
   
-//   let sql =
-//     "UPDATE `brand_info` SET `brandStory_img` = ? WHERE `brand_info`.`merchant_id` = ?;"
+  let sql =
+    "UPDATE `brand_info` SET `brandStory_img` = ? WHERE `brand_info`.`merchant_id` = ?;"
   
-//   const [results1] = await db.query(sql, [req.file.filename , 12]);
+  const [results1] = await db.query(sql, [req.file.filename , 12]);
 
-// console.log("results1", results1);
-//   if (!results1.affectedRows) {
-//     return res.json("error");
-// }
-//   res.json(
-//     {
-//     "name": filename,
-//     "status": "done",
-//     "url": "http://localhost:5000/BackgroundImg/"+filename,
-//     "thumbUrl": "http://localhost:5000/BackgroundImg/"+filename
-//   }
-//   );
-// });
+console.log("results1", results1);
+  if (!results1.affectedRows) {
+    return res.json("error");
+}
+  res.json(
+    {
+    "name": filename,
+    "status": "done",
+    "url": "http://localhost:5000/BrandStoryImg/"+filename,
+    "thumbUrl": "http://localhost:5000/BrandStoryImg/"+filename
+  }
+  );
+});
 
 //info-upload
 router.post("/editpage/changeData", upload.none(), async (req, res) => {
