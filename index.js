@@ -78,9 +78,9 @@ io.on("connection", (socket) => {
     // socket.emit("message", { text: `你好 ${user.name}, 請問找什麼呢 ?`, });
 
     //  try to set login type and passing info to MySQL
-    const loginTime = moment().format('YYYY-MM-DD h:mm')
-    const logintype_sql = "INSERT INTO `channel_login_type`(`id`, `name`, `last_active`, `login_type`) VALUES (?,?,?)"
-    await db.query(logintype_sql , [user.name, loginTime, ])
+    // const loginTime = moment().format('YYYY-MM-DD h:mm')
+    // const logintype_sql = "INSERT INTO `channel_login_type`(`id`, `name`, `last_active`, `login_type`) VALUES (?,?,?)"
+    // await db.query(logintype_sql , [user.name, loginTime, ])
 
     socket.broadcast
       .to(user.room)
