@@ -45,10 +45,8 @@ router.post("/",async(req,res)=>{
   // const data = {...req.body}
   // console.log('req.body',req.body)
   // console.log('[ req.body[0]',[ req.body[0])
-  const sql = "UPDATE `order_evaluations` SET `buyer_message` = ? WHERE customer_id = 1 AND `buyer_message` IS null;"
-  const [{affectedRows,changedRows}] = await db.query(sql,[ req.body[0] , req.query.id ]);
-  console.log('req.body[0]',req.body[0])
-  console.log('req.query.id',req.body[1])
+  const sql = "UPDATE `order_evaluations` SET `buyer_message` = ? WHERE `comment_id`= ?"
+  const [{affectedRows,changedRows}] = await db.query(sql,[ req.body.buyer_message , req.query.comment_id ]);
 
   res.json({
     success:!!changedRows,

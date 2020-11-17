@@ -26,7 +26,6 @@ async function getListData(req) {
       const [[{ totalEndedRows }]] = await db.query(sqlMerchantIdEnded, [
         req.query.id,
       ])
-      console.log('totalEndedRows', totalEndedRows)
       if (totalEndedRows > 0) {
         let page = parseInt(req.query.page) || 1
         output.totalRows = totalEndedRows
@@ -92,7 +91,6 @@ async function getListData(req) {
       let sqlMerchantId =
         'SELECT COUNT(1) totalRows from contracts AS A WHERE A.merchant_id = ?'
       const [[{ totalRows }]] = await db.query(sqlMerchantId, [req.query.id])
-      console.log('totalRows', totalRows)
       if (totalRows > 0) {
         let page = parseInt(req.query.page) || 1
         output.totalRows = totalRows

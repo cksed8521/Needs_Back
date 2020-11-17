@@ -42,7 +42,6 @@ async function getListData(req) {
             GROUP BY D.order_id`
           const [unpaidResult] = await db.query(sqlUnpaidMerchantId, [req.query.id])
           const unpaidTotalRows = unpaidResult.length
-          console.log('result', unpaidTotalRows)
 
           if (unpaidTotalRows > 0) {
             let page = parseInt(req.query.page) || 1
@@ -130,7 +129,6 @@ async function getListData(req) {
             GROUP BY D.order_id`
           const [backorderResult] = await db.query(sqlBackorderMerchantId, [req.query.id])
           const backorderTotalRows = backorderResult.length
-          console.log('result', backorderTotalRows)
 
           if (backorderTotalRows > 0) {
             let page = parseInt(req.query.page) || 1
@@ -218,7 +216,6 @@ async function getListData(req) {
             GROUP BY D.order_id`
           const [returnResult] = await db.query(sqlReturnMerchantId, [req.query.id])
           const returnTotalRows = returnResult.length
-          console.log('result', returnTotalRows)
 
           if (returnTotalRows > 0) {
             let page = parseInt(req.query.page) || 1
@@ -306,7 +303,6 @@ async function getListData(req) {
             GROUP BY D.order_id`
           const [result] = await db.query(sqlMerchantId, [req.query.id])
           const totalRows = result.length
-          console.log('result', totalRows)
 
           if (totalRows > 0) {
             let page = parseInt(req.query.page) || 1
@@ -395,7 +391,6 @@ async function getListData(req) {
               LEFT JOIN product_skus E ON D.product_sku_id = E.id
               LEFT JOIN products F ON E.product_id = F.id WHERE F.merchant_id  = ? AND ?? LIKE ?`
             const [[{ totalRows }]] = await db.query(sqlMerchantId, [req.query.id,`${searchTypeMap[req.query.searchType]}`,`%${req.query.searchInp}%`])
-            console.log('totalRows', totalRows)
             if (totalRows > 0) {
               let page = parseInt(req.query.page) || 1
               output.totalRows = totalRows
@@ -487,7 +482,6 @@ module.exports = router
 
 router.put('/list', async (req, res) => {
   const data = { ...req.body }
-  console.log(data)
    const sqlUpdateOrder = `UPDATE orders A 
                             INNER JOIN order_deliveries B 
                             ON A.delivery_id = B.id
