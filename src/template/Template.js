@@ -148,9 +148,12 @@ router.get("/merchant_info", async(req, res) => {
 // http://localhost:5000/Template/merchant_product?merchant_id=12
 router.get("/merchant_product", async(req, res) => {
   const products_sql =
-  "SELECT id,title,outline,image_path, type FROM products WHERE type=0 AND merchant_id=?";//商家商品
+  `SELECT products.id, products.title, products.outline, products.image_path, products.type, product_skus.price FROM products 
+  LEFT JOIN product_skus
+  ON products.id = product_skus.product_id WHERE type=0 AND merchant_id=?
+  GROUP BY(products.id)`;//商家商品
   const activities_sql =
-  "SELECT id,title,outline,image_path, type FROM products WHERE type=1 AND merchant_id=?";//商家活動
+  "SELECT products.id, products.title, products.outline, products.image_path, products.type, product_skus.price, product_skus.specification FROM products LEFT JOIN product_skus ON products.id = product_skus.product_id WHERE type=1 AND merchant_id=? GROUP BY(product_skus.product_id)";//商家活動
   const [products] = await db.query(products_sql, [req.query.merchant_id]);
   const [activities] = await db.query(activities_sql, [req.query.merchant_id]);
   console.log('product_req',req.query)
@@ -165,8 +168,6 @@ router.get("/merchant_product", async(req, res) => {
     }
     res.json(output);
 });
-
-
 
 async function getMerchantData(id, exclude) {
   const merchant_sql =
