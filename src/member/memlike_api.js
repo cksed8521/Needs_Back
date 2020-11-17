@@ -10,7 +10,7 @@ async function getLike(req) {
     case "brands":
 
       let sqlbrands =
-        "SELECT customer_subscribes.*, merchants.brand_name, brand_info.index_img FROM customer_subscribes LEFT JOIN merchants ON customer_subscribes.merchant_id = merchants.id LEFT JOIN brand_info ON customer_subscribes.merchant_id = brand_info.merchant_id WHERE `customer_id` = ? AND customer_subscribes.merchant_id NOT IN(100)";
+        "SELECT customer_subscribes.*, merchants.brand_name, merchants.fans, brand_info.index_img FROM customer_subscribes LEFT JOIN merchants ON customer_subscribes.merchant_id = merchants.id LEFT JOIN brand_info ON customer_subscribes.merchant_id = brand_info.merchant_id WHERE `customer_id` = ? AND customer_subscribes.merchant_id NOT IN(100)";
       const [results1] = await db.query(sqlbrands, [req.query.customer_id]);
       output.filter = "brands";
       output.rows = results1;
