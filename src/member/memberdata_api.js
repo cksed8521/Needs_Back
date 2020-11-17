@@ -50,6 +50,7 @@ router.post("/upload", upload.single("avatar") , async(req, res) =>{
   const [{affectedRows , insertId}] = await db.query(sql , [req.file.filename,req.query.id])
   console.log(3)
   res.json({
+    avatar: req.file.filename,
     success: !!affectedRows,
     affectedRows,
     insertId,
