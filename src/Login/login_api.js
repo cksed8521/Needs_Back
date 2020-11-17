@@ -12,15 +12,14 @@ router.post('/merchantlogin', upload.none(), async (req, res) => {
     account: submitData,
     success: false,
   }
-  const sql = `SELECT A.id, A.email, A.name as merchant_name, B.brand_en_name, C.index_img FROM merchant_contacts A
+  const sql = `SELECT A.id, B.id AS merchant_id, A.email, A.name as merchant_name, B.brand_en_name, C.index_img FROM merchant_contacts A
                LEFT JOIN merchants B ON A.merchant_id = B.id 
                LEFT JOIN brand_info C ON C.merchant_id = B.id
                WHERE email = ? AND password = SHA1(?)`
 
   const [results] = await db.query(sql, [req.body.username, req.body.password])
-  console.log('results', results)
   if (results.length) {
-    output.user.id = results[0].id
+    output.user.id = results[0].merchant_id
     output.user.username = results[0].merchant_name
     output.user.brand_en_name = results[0].brand_en_name
     output.user.brand_img = results[0].index_img
