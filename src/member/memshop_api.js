@@ -11,7 +11,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   // console.log(1)
 
-  const sqlOrdernumber =`SELECT DISTINCT orders.order_number,merchants.id AS merchants_id,merchants.brand_name FROM orders LEFT JOIN order_products ON orders.id = order_products.order_id LEFT JOIN product_skus ON order_products.product_sku_id = product_skus.id LEFT JOIN products ON product_skus.product_id = products.id LEFT JOIN merchants ON products.merchant_id = merchants.id WHERE customer_id = 1 `;
+  const sqlOrdernumber =`SELECT DISTINCT orders.order_number,merchants.id AS merchants_id,merchants.brand_name FROM orders LEFT JOIN order_products ON orders.id = order_products.order_id LEFT JOIN product_skus ON order_products.product_sku_id = product_skus.id LEFT JOIN products ON product_skus.product_id = products.id LEFT JOIN merchants ON products.merchant_id = merchants.id WHERE customer_id = 1 ORDER BY order_number DESC`;
 
 
 
