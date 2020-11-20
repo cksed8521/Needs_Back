@@ -9,7 +9,9 @@ const sendMail = require(__dirname + '/mail')
 
 //success to upload into EditorJS
 router.post('/fetchUrl', upload.single('image'), (req, res) => {
-  const imgPath = 'http://122.116.38.12:5050/articleImg/' + req.file.filename
+
+  // url
+  const imgPath = 'http://ipconfig/articleImg/' + req.file.filename
   res.json({
     success: 1,
     file: {
@@ -19,20 +21,6 @@ router.post('/fetchUrl', upload.single('image'), (req, res) => {
   })
 })
 
-//可以成功上傳的內容
-// router.post("/upload", upload.single("image") , async(req, res) =>{
-// res.json(req.file)
-// const imgPath = "localhost:5000/" + req.file.filename
-//   const sql = "INSERT INTO `testupload`(`image` , `create_at`) VALUES (?,now())"
-//   console.log(2)
-//   const [{affectedRows , insertId}] = await db.query(sql , imgPath)
-//   console.log(3)
-//   res.json({
-//     success: !!affectedRows,
-//     affectedRows,
-//     insertId,
-//   })
-// })
 
 // get all article
 router.get('/', (req, res) => {
@@ -91,9 +79,6 @@ router.post('/email', (req, res) => {
   const subject = req.body[0]
   const image = req.body[1]
   const html = req.body[2].__html
-  console.log('subject', req.body[0])
-  console.log('image', req.body[1])
-  console.log('html', req.body[2].__html)
 
   sendMail(subject, image, html, function (err, data) {
     if (err) {
